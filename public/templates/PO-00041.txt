@@ -1,0 +1,95 @@
+                                                   PURCHASE ORDER
+
+                                                                                                           # PO-00041
+
+KHALEEF NET SDN BHD
+
+LOT 133 BLOCK P, 1ST FLOOR, LORONG PLAZA PERMAI 2
+ALAMESRA
+SULAMAN COASTAL HIGHWAY
+KOTA KINABALU Sabah 88450
+Malaysia
+account@khaleefnet.com
+
+Vendor Address                                                                Date :              27 Mar 2026
+                                                                              Ref# :
+USAHA CORP ENTERPRISE                                                                 CABLING WORK FOR
+1ST FLOOR, UNIT G 130A,                                                               UNIMAS WIFI PHASE
+WISMA SABAH, JALAN TUN RAZAK
+KOTA KINABALU                                                                                        2 PROJECT
+88000 SABAH
+Malaysia
+
+Deliver To
+
+KHALEEF NET SDN BHD
+LOT 133 BLOCK P, 1ST FLOOR,
+LORONG PLAZA PERMAI 2
+ALAMESRA
+SULAMAN COASTAL HIGHWAY
+KOTA KINABALU Sabah 88450
+Malaysia
+jupran@khaleefnet.com
+
+# Item & Description                                                    Qty      Rate  Amount
+                                                                              200.00   2,000.00
+1  Installation, Testing, and Commissioning of Structured Cabling     10.00
+                                                                      UNIT
+   Infrastructure, Cable Termination, and Wireless Access Point (AP)
+
+   Installation at UNIMAS
+
+   PHASE 1 :
+
+   LOCATION : PUSAT SUKAN
+
+2  LOCATION : DAHLIA                                                  240.00  200.00   48,000.00
+
+3  LOCATION : DAHLIA PREMIUM                                           32.00  200.00    6,400.00
+                                                                        UNIT  200.00   14,400.00
+4  LOCATION : SAKURA                                                          200.00   40,200.00
+                                                                       72.00
+5  Installation, Testing, and Commissioning of Structured Cabling       UNIT
+
+   Infrastructure, Cable Termination, and Wireless Access Point (AP)  201.00
+                                                                        UNIT
+
+   Installation at UNIMAS.
+
+   PHASE 2:
+
+   LOCATION : ALLAMANDA
+
+   1. Deposit
+
+                                                                                                                                                                                      1
+# Item & Description                                             Qty         Rate                                          Amount
+
+         A deposit of 20% of the total quotation amount is
+         required upon acceptance of this quotation. Work will
+         only commence after the deposit has been received.
+         2. Progress Payment
+         A progress payment of 50% will be required upon
+         completion of the agreed project milestone or halfway
+         point of the project timeline.
+         3. Final Payment
+         The remaining 30% balance must be paid upon inspection
+         project completion.
+
+                                                                 Sub Total               111,000.00
+                                                                      Total        MYR111,000.00
+
+Notes
+
+1. Supplier is required to acknowledge receipt & acceptance of this purchase order & return to Khaleef Net Sdn Bhd within
+3 working days.
+2. Supplier may email this copy to our email : account@khaleefnet.com
+
+Terms & Conditions
+
+1. Please send copies of your invoice.
+2. Enter this order in accordance with the prices, terms, delivery method, and specifications listed above.
+3. Please notify us immediately if you are unable to ship as specified.
+
+                                                                                                                                   2
+

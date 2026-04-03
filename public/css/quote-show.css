@@ -1,0 +1,174 @@
+.quote-toolbar-actions {
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.quote-print-btn {
+    border: 0;
+}
+
+.quote-template-card {
+    max-width: 980px;
+    margin: 0 auto;
+    border: 1px solid #dedede;
+    background: #ffffff;
+}
+
+.quote-header-right {
+    text-align: right;
+    width: 320px;
+    margin-left: 24px;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+}
+
+.quote-title {
+    line-height: 1;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.quote-meta-grid {
+    margin-top: auto;
+    width: 100%;
+    font-size: 14px;
+}
+
+.quote-meta-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    column-gap: 8px;
+    align-items: start;
+    margin-bottom: 6px;
+}
+
+.quote-meta-row:last-child {
+    margin-bottom: 0;
+}
+
+.quote-meta-label {
+    text-align: left;
+}
+
+.quote-meta-value {
+    text-align: right;
+}
+
+.quote-meta-value-compact {
+    line-height: 1.25;
+}
+
+.quote-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.quote-items-table th,
+.quote-items-table td {
+    border: 1px solid #222;
+    padding: 10px;
+}
+
+.quote-items-table thead th {
+    text-align: center;
+    background: #3a3a3a;
+    color: #fff;
+}
+
+.quote-items-table thead th:nth-child(2) {
+    width: 140px;
+}
+
+.quote-items-table thead th:nth-child(3) {
+    width: 110px;
+}
+
+.quote-items-table thead th:nth-child(4) {
+    width: 210px;
+}
+
+.quote-items-table tbody td:nth-child(2),
+.quote-items-table tbody td:nth-child(4) {
+    text-align: right;
+}
+
+.quote-items-table tbody td:nth-child(3) {
+    text-align: center;
+}
+
+.quote-company-row td {
+    padding: 8px 10px;
+    font-weight: 700;
+    background: #f6f6f6;
+}
+
+.quote-empty-row td {
+    padding: 20px;
+}
+
+.quote-summary-table {
+    width: 320px;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.quote-summary-table td {
+    border: 1px solid #222;
+    padding: 8px 10px;
+    text-align: right;
+}
+
+.quote-summary-total td {
+    padding: 10px;
+    font-weight: 800;
+    background: #ffffff;
+}
+
+.quote-thanks {
+    text-align: center;
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+    }
+
+    .app-sidebar,
+    .app-header,
+    .quote-toolbar > a,
+    .quote-toolbar [data-print-trigger],
+    .quote-toolbar .bg-green {
+        display: none !important;
+    }
+
+    .app-main {
+        padding: 0 !important;
+    }
+
+    #quote-template {
+        box-sizing: border-box !important;
+        width: 190mm !important;
+        min-height: 277mm !important;
+        margin: 0 auto !important;
+        padding: 8mm !important;
+        background: #fff !important;
+        box-shadow: none !important;
+        border: 0 !important;
+        max-width: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    #quote-template thead th {
+        background: #3a3a3a !important;
+        color: #fff !important;
+    }
+}

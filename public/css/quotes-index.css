@@ -1,0 +1,23 @@
+.quote-action-btn {
+    transition: transform 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease, color 0.14s ease;
+}
+
+.quote-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.quote-action-btn.action-view:hover {
+    background-color: #2f55c7;
+    color: #ffffff !important;
+}
+
+.quote-action-btn.action-edit:hover {
+    background-color: #4b5563;
+    color: #ffffff !important;
+}
+
+.quote-action-btn.action-delete:hover {
+    background-color: #bf2f2f;
+    color: #ffffff !important;
+}

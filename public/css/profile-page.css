@@ -1,0 +1,146 @@
+.profile-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+.profile-card {
+    background: #fff;
+    border: 1px solid #e4e7ef;
+    border-radius: 14px;
+    box-shadow: 0 12px 28px rgba(18, 35, 74, 0.08);
+    overflow: hidden;
+}
+
+.profile-cover {
+    height: 140px;
+    background:
+        linear-gradient(180deg, rgba(15, 29, 58, 0.34), rgba(15, 29, 58, 0.56)),
+        url('/images/login-city.png') center center / cover no-repeat,
+        linear-gradient(135deg, #314f85, #20345e);
+    position: relative;
+}
+
+.profile-avatar {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -48px;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    border: 6px solid #fff;
+    background: #e2ab31;
+    color: #1f2f4e;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(18, 35, 74, 0.25);
+}
+
+.profile-avatar-image {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-main {
+    padding: 64px 28px 24px;
+    text-align: center;
+}
+
+.profile-name {
+    margin: 0;
+    color: #20345e;
+    font-size: 20px;
+    letter-spacing: 0.3px;
+}
+
+.profile-badge {
+    display: inline-flex;
+    margin-top: 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-radius: 999px;
+    padding: 4px 10px;
+    color: #fff;
+    background: #2e5ca8;
+}
+
+.profile-grid {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 0;
+    border-top: 1px solid #eceff6;
+    text-align: left;
+}
+
+.profile-label,
+.profile-value {
+    padding: 12px 0;
+    border-bottom: 1px solid #eceff6;
+}
+
+.profile-label {
+    font-size: 12px;
+    color: #7a8397;
+}
+
+.profile-value {
+    font-size: 14px;
+    color: #21324f;
+    font-weight: 600;
+}
+
+.profile-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.profile-btn {
+    border: 0;
+    border-radius: 7px;
+    padding: 10px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.profile-btn-primary {
+    background: #2f5ca6;
+    color: #fff;
+}
+
+.profile-btn-light {
+    background: #eef2fb;
+    color: #20345e;
+}
+
+#profile-edit-modal .modal-body {
+    text-align: left;
+}
+
+#profile-edit-modal input[type="file"] {
+    padding: 8px;
+}
+
+@media (max-width: 640px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-label {
+        padding-bottom: 4px;
+        border-bottom: 0;
+    }
+
+    .profile-value {
+        padding-top: 0;
+    }
+}

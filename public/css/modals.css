@@ -1,0 +1,166 @@
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    width: 100%;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.modal-overlay.active {
+    display: block;
+}
+
+.modal-dialog {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    width: 90%;
+    max-width: 700px;
+}
+
+.modal-dialog.active {
+    display: block;
+}
+
+.modal-dialog.dimmed {
+    pointer-events: none;
+    filter: blur(2px);
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 25px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 500px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 25px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn-primary {
+    background: #0052a3;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background: #003d7a;
+}
+
+.btn-secondary {
+    background: #d0d0d0;
+    color: #222;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-secondary:hover {
+    background: #c0c0c0;
+}
+
+.btn-danger {
+    background: #bb2d3b;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-danger:hover {
+    background: #a02333;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 8px;
+    font-size: 18px;
+    line-height: 1;
+    color: #666;
+}
+
+.btn-icon:hover {
+    color: #333;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.d-block {
+    display: block;
+}
+
+.gap-15 {
+    gap: 15px;
+}

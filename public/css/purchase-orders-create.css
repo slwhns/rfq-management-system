@@ -1,0 +1,44 @@
+@media print {
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+    }
+
+    .app-sidebar,
+    .app-header,
+    .purchase-order-toolbar,
+    .purchase-order-toolbar > *,
+    .purchase-order-toolbar form {
+        display: none !important;
+    }
+
+    .app-main {
+        padding: 0 !important;
+    }
+
+    #purchase-orders-create-page {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        box-sizing: border-box !important;
+        width: 190mm !important;
+        min-height: 277mm !important;
+        margin: 0 auto !important;
+        padding: 8mm !important;
+        background: #fff !important;
+        box-shadow: none !important;
+        border: 0 !important;
+        max-width: none !important;
+    }
+
+    #purchase-orders-create-page thead th {
+        background: #3a3a3a !important;
+        color: #fff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}

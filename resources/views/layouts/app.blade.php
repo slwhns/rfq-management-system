@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>QS System</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Custom CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/modals.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/profile-page.css') }}">
+</head>
+
+<body class="bg-white3 app-theme">
+
+@php
+    $currentUser = auth()->user();
+    $displayName = $currentUser?->name ?? 'User';
+    $displayRole = ucfirst($currentUser?->normalizedRole() ?? 'staff');
+    $avatarInitial = strtoupper(substr($displayName, 0, 1));
+    $avatarUrl = $currentUser?->profile_photo_path ? \Illuminate\Support\Facades\Storage::url($currentUser->profile_photo_path) : null;
+@endphp
+
+<div class="d-flex app-shell">
+
+    <!-- Sidebar -->
+    <div class="app-sidebar">
+        <div class="app-sidebar-inner">
+
+        <div class="app-brand-wrap mg-b-10">
+            <div class="app-brand">
+                <img src="{{ asset('images/system-logo.svg') }}" alt="QS System Logo" class="app-brand-logo">
+            </div>
+        </div>
+
+        <div class="app-nav-group-label">Main</div>
+
+        <button type="button" data-route="dashboard" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('dashboard') ? 'app-nav-active' : '' }}"
+            onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/dashboard')">
+            <span class="app-nav-icon"><i class="ri-home-2-line"></i></span>
+            <span class="app-nav-text">Dashboard</span>
+        </button>
+
+        <div class="app-nav-group-label">Management</div>
+
+        <button type="button" data-route="quotes" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('quotes*') ? 'app-nav-active' : '' }}"
+            onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/quotes')">
+            <span class="app-nav-icon"><i class="ri-draft-line"></i></span>
+            <span class="app-nav-text">Purchase Request</span>
+        </button>
+
+        @if(in_array(($currentUser?->normalizedRole() ?? 'staff'), ['superadmin', 'admin'], true))
+            <button type="button" data-route="purchase-orders" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('purchase-orders*') ? 'app-nav-active' : '' }}"
+                onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/purchase-orders')">
+                <span class="app-nav-icon"><i class="ri-survey-line"></i></span>
+                <span class="app-nav-text">Purchase Orders</span>
+            </button>
+        @endif
+
+        @if(($currentUser?->normalizedRole() ?? 'staff') === 'superadmin')
+            <button type="button" data-route="admin/staff" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('admin/staff*') ? 'app-nav-active' : '' }}"
+                onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/admin/staff')">
+                <span class="app-nav-icon"><i class="ri-team-line"></i></span>
+                <span class="app-nav-text">Staff</span>
+            </button>
+        @endif
+
+        <button type="button" data-route="projects" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('projects*') || request()->is('pricing*') ? 'app-nav-active' : '' }}"
+            onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/projects')">
+            <span class="app-nav-icon">◎</span>
+            <span class="app-nav-text">Projects &amp; Pricing</span>
+        </button>
+
+        <button type="button" data-route="suppliers" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('suppliers*') ? 'app-nav-active' : '' }}"
+            onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/suppliers')">
+            <span class="app-nav-icon">◈</span>
+            <span class="app-nav-text">Suppliers</span>
+        </button>
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="fg-1 d-flex fd-column app-content">
+
+        <!-- HEADER -->
+        <div class="header d-flex jc-between ai-center pd-15 bg-white5 bdr-bottom-22 box-shadow-basic app-header">
+
+            <div>
+                <div class="fs-18 fw-bold header-title">QS Smart Data Center</div>
+                <div class="fs-12 header-subtitle">Pricing System</div>
+            </div>
+
+            <button type="button" class="header-profile-trigger" id="header-profile-trigger" aria-label="Open profile panel">
+                <div class="fs-13 header-user">{{ $displayName }}</div>
+                <span class="header-profile-avatar">
+                    @if($avatarUrl)
+                        <img src="{{ $avatarUrl }}" alt="{{ $displayName }} avatar" class="header-profile-avatar-image">
+                    @else
+                        {{ $avatarInitial }}
+                    @endif
+                </span>
+            </button>
+
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="pd-20 app-main" id="main-content">
+            @yield('content')
+        </div>
+
+    </div>
+
+</div>
+
+<div class="profile-rail-overlay" id="profile-rail-overlay" aria-hidden="true"></div>
+<div class="profile-rail-hitarea" id="profile-rail-hitarea" aria-hidden="true"></div>
+
+<aside class="profile-rail" id="profile-rail" aria-hidden="true">
+    <div class="profile-rail-top">
+        <span class="header-profile-avatar">
+            @if($avatarUrl)
+                <img src="{{ $avatarUrl }}" alt="{{ $displayName }} avatar" class="header-profile-avatar-image">
+            @else
+                {{ $avatarInitial }}
+            @endif
+        </span>
+        <div class="profile-rail-actions">
+            <a href="{{ route('profile.index') }}" class="profile-rail-btn" title="Profile" aria-label="Profile">
+                <i class="ri-user-3-line"></i>
+            </a>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="profile-rail-btn profile-rail-logout" title="Logout" aria-label="Logout" data-no-spa="true">
+                    <i class="ri-logout-box-r-line"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
+
+<script src="{{ asset('js/api-helper.js') }}"></script>
+<script src="{{ asset('js/modals.js') }}"></script>
+<script src="{{ asset('js/profile-page.js') }}"></script>
+<script type="module" src="{{ asset('js/app.js') }}"></script>
+
+@stack('scripts')
+
+</body>
+</html>
