@@ -31,10 +31,10 @@ class DashboardController extends Controller
                 ->take(12)
                 ->get();
 
-            $approvedPoCount = PurchaseOrder::where('status', 'approved')->count();
+            $totalPoCount = PurchaseOrder::count();
 
             $viewData['pendingReviewPrs'] = $pendingReviewPrs;
-            $viewData['approvedPoCount'] = $approvedPoCount;
+            $viewData['totalPoCount'] = $totalPoCount;
 
             if ($role === User::ROLE_SUPERADMIN) {
                 $staffUsers = User::query()

@@ -14,9 +14,9 @@
     </div>
 
     <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="fs-12 clr-grey1 mg-b-5">Total PO Approved</div>
-        <div class="fs-25 fw-bold">{{ $approvedPoCount ?? 0 }}</div>
-        <div class="fs-11 clr-grey1 mg-t-5">Purchase orders with status approved</div>
+        <div class="fs-12 clr-grey1 mg-b-5">Total PO Created</div>
+        <div class="fs-25 fw-bold">{{ $totalPoCount ?? 0 }}</div>
+        <div class="fs-11 clr-grey1 mg-t-5">All purchase orders created</div>
     </div>
 
     @if(($role ?? null) === \App\Models\User::ROLE_SUPERADMIN)
