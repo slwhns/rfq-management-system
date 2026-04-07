@@ -29,6 +29,14 @@ class QuoteController extends Controller
     public function generate(Request $request)
     {
         $response = null;
+        $currentUser = $request->user();
+
+        if (! $currentUser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
 
         $request->validate([
             'project_id' => 'required|exists:projects,id'
@@ -45,7 +53,11 @@ class QuoteController extends Controller
                 ], 400);
             } else {
                 // Generate purchase request using service
-                $quotes = $this->quoteService->generateFromProject($project);
+                $quotes = $this->quoteService->generateFromProject(
+                    $project,
+                    $currentUser->id,
+                    $currentUser->department
+                );
 
                 if ($quotes->isEmpty()) {
                     $response = response()->json([
@@ -101,7 +113,8 @@ class QuoteController extends Controller
         $statusStyles = Quote::statusBadgeStyles();
         $statusUpdateOptions = Quote::mutableStatusOptionsForRole($currentUser?->normalizedRole());
 
-        $query = Quote::with('project')->whereIn('status', $visibleStatuses);
+        $query = Quote::with(['project', 'approvedBy', 'adminNotesUpdatedBy', 'staffResponseUpdatedBy'])
+            ->whereIn('status', $visibleStatuses);
         if (in_array($selectedStatus, $visibleStatuses, true)) {
             $query->where('status', $selectedStatus);
         }
@@ -111,7 +124,7 @@ class QuoteController extends Controller
             });
         }
 
-        $quotes = $query->latest()->paginate(10);
+        $quotes = $query->latest()->paginate(8);
         if ($selectedStatus !== '' || $projectSearch !== '') {
             $quotes->appends([
                 'status' => $selectedStatus,
@@ -230,6 +243,10 @@ class QuoteController extends Controller
         $quote = Quote::with(['project', 'items.component'])
             ->findOrFail($id);
 
+        if (Quote::normalizeStatus($quote->status) === Quote::STATUS_APPROVED) {
+            abort(403, 'Approved purchase requests can no longer be edited.');
+        }
+
         $statusOptions = Quote::mutableStatusOptionsForRole(request()->user()?->normalizedRole());
         if (!array_key_exists(Quote::normalizeStatus($quote->status), $statusOptions)) {
             $allOptions = Quote::statusOptions();
@@ -245,16 +262,24 @@ class QuoteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $quote = Quote::with('items')->findOrFail($id);
+        $quote = Quote::with(['items.component', 'project'])->findOrFail($id);
+        if (Quote::normalizeStatus($quote->status) === Quote::STATUS_APPROVED) {
+            abort(403, 'Approved purchase requests can no longer be updated.');
+        }
+
         $role = $request->user()?->normalizedRole();
-        $allowedStatuses = array_keys(Quote::mutableStatusOptionsForRole($role));
+        $allowedStatuses = array_unique(array_merge(
+            [Quote::normalizeStatus($quote->status)],
+            array_keys(Quote::mutableStatusOptionsForRole($role))
+        ));
 
         $validated = $request->validate([
             'status' => ['required', Rule::in($allowedStatuses)],
-            'valid_until' => 'nullable|date',
+            'date_requested' => 'nullable|date',
+            'date_needed' => 'nullable|date',
             'tax_rate' => 'required|numeric|min:0|max:100',
             'items' => 'required|array|min:1',
-            'items.*.id' => 'required|integer|exists:quote_items,id',
+            'items.*.id' => 'required|integer|exists:purchase_request_items,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.discount_percent' => 'nullable|numeric|min:0|max:100',
@@ -278,7 +303,7 @@ class QuoteController extends Controller
             abort(403, 'You do not have permission to update quote to this status.');
         }
 
-        DB::transaction(function () use ($quote, $validated, $incomingItems) {
+        DB::transaction(function () use ($quote, $validated, $incomingItems, $fromStatus, $toStatus, $request) {
             $subtotal = 0.0;
             $discountTotal = 0.0;
 
@@ -286,6 +311,7 @@ class QuoteController extends Controller
                 $quantity = (int) $itemData['quantity'];
                 $unitPrice = (float) $itemData['unit_price'];
                 $discountPercent = (float) ($itemData['discount_percent'] ?? 0);
+                $quoteItem = collect($quote->items)->firstWhere('id', (int) $itemData['id']);
 
                 $lineSubtotal = $quantity * $unitPrice;
                 $lineDiscount = $lineSubtotal * ($discountPercent / 100);
@@ -300,6 +326,29 @@ class QuoteController extends Controller
                     'discount_percent' => $discountPercent,
                     'line_total' => round($lineTotal, 2),
                 ]);
+
+                if ($quote->project && $quoteItem?->component_id) {
+                    $projectComponent = ProjectComponent::where('project_id', $quote->project_id)
+                        ->where('component_id', $quoteItem->component_id)
+                        ->first();
+
+                    if ($projectComponent) {
+                        $notes = [];
+                        if (!empty($projectComponent->notes)) {
+                            $decodedNotes = json_decode((string) $projectComponent->notes, true);
+                            if (is_array($decodedNotes)) {
+                                $notes = $decodedNotes;
+                            }
+                        }
+
+                        $notes['discount_percent'] = $discountPercent;
+
+                        $projectComponent->update([
+                            'quantity' => $quantity,
+                            'notes' => empty($notes) ? null : json_encode($notes),
+                        ]);
+                    }
+                }
             }
 
             $afterDiscount = $subtotal - $discountTotal;
@@ -307,15 +356,28 @@ class QuoteController extends Controller
             $taxAmount = $afterDiscount * ($taxRate / 100);
             $totalAmount = $afterDiscount + $taxAmount;
 
-            $quote->update([
+            $quoteUpdatePayload = [
                 'status' => $validated['status'],
-                'valid_until' => $validated['valid_until'] ?? null,
+                'date_requested' => $validated['date_requested'] ?? null,
+                'date_needed' => $validated['date_needed'] ?? null,
                 'subtotal' => round($subtotal, 2),
                 'discount_total' => round($discountTotal, 2),
                 'tax_rate' => round($taxRate, 2),
                 'tax_amount' => round($taxAmount, 2),
                 'total_amount' => round($totalAmount, 2),
-            ]);
+            ];
+
+            if ($toStatus === Quote::STATUS_APPROVED && $fromStatus !== Quote::STATUS_APPROVED) {
+                $quoteUpdatePayload['approved_by'] = $request->user()?->id;
+            }
+
+            $quote->update($quoteUpdatePayload);
+
+            if ($quote->project) {
+                $quote->project->update([
+                    'tax_rate' => round($taxRate, 2),
+                ]);
+            }
         });
 
         $this->logStatusChange(
@@ -334,6 +396,10 @@ class QuoteController extends Controller
     public function destroy($id)
     {
         $quote = Quote::findOrFail($id);
+        if (Quote::normalizeStatus($quote->status) === Quote::STATUS_APPROVED) {
+            abort(403, 'Approved purchase requests can no longer be deleted.');
+        }
+
         $quote->delete();
 
         return redirect()->route('quotes.index');
@@ -369,7 +435,12 @@ class QuoteController extends Controller
             ], 403);
         }
 
-        $quote->update(['status' => $toStatus]);
+        $quoteUpdatePayload = ['status' => $toStatus];
+        if ($toStatus === Quote::STATUS_APPROVED && $fromStatus !== Quote::STATUS_APPROVED) {
+            $quoteUpdatePayload['approved_by'] = $currentUser->id;
+        }
+
+        $quote->update($quoteUpdatePayload);
 
         $this->logStatusChange(
             $quote,
@@ -405,6 +476,7 @@ class QuoteController extends Controller
         $quote->update([
             'admin_notes' => $adminNotes,
             'admin_notes_updated_at' => $adminNotes ? now() : null,
+            'admin_notes_updated_by' => $adminNotes ? $currentUser->id : null,
         ]);
 
         return response()->json([
@@ -414,6 +486,7 @@ class QuoteController extends Controller
                 'id' => $quote->id,
                 'admin_notes' => $quote->admin_notes,
                 'admin_notes_updated_at' => optional($quote->admin_notes_updated_at)->toDateTimeString(),
+                'admin_notes_updated_by' => $quote->admin_notes_updated_by,
             ],
         ]);
     }
@@ -437,6 +510,7 @@ class QuoteController extends Controller
         $quote->update([
             'staff_response' => $staffResponse,
             'staff_response_updated_at' => $staffResponse ? now() : null,
+            'staff_response_updated_by' => $staffResponse ? $currentUser->id : null,
         ]);
 
         return response()->json([
@@ -446,6 +520,7 @@ class QuoteController extends Controller
                 'id' => $quote->id,
                 'staff_response' => $quote->staff_response,
                 'staff_response_updated_at' => optional($quote->staff_response_updated_at)->toDateTimeString(),
+                'staff_response_updated_by' => $quote->staff_response_updated_by,
             ],
         ]);
     }

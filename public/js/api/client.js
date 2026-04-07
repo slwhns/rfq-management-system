@@ -63,10 +63,23 @@ const API = {
 
     // Quotes
     async generateQuote(projectId) {
-        return this.request('/generate-quote', {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        const response = await fetch('/quotes/generate', {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+            },
             body: JSON.stringify({ project_id: projectId })
         });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || 'API request failed');
+        }
+
+        return data;
     },
 
     async getQuotes() {

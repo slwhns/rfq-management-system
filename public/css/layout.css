@@ -49,7 +49,7 @@
     right: 0;
     width: 64px;
     height: 100vh;
-    background: #f7f8fc;
+    background: #ffff;
     border-left: 1px solid #d9deea;
     display: flex;
     flex-direction: column;
@@ -93,7 +93,7 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    border: 1px solid #d7dce8;
+    border: 0px solid #d7dce8;
     background: #fff;
     color: #30405f;
     cursor: pointer;

@@ -54,7 +54,8 @@ Route::middleware(['auth', 'role:superadmin,admin,staff'])->group(function () {
 
     Route::get('/suppliers', [SupplierController::class, 'page'])->name('suppliers.index');
     Route::get('/purchase-orders', [PurchaseOrderController::class, 'index'])->name('purchase-orders.index');
-    Route::get('/purchase-orders/create/{quote}', [PurchaseOrderController::class, 'create'])->name('purchase-orders.create');
+    Route::post('/purchase-orders/create/{quote}', [PurchaseOrderController::class, 'create'])->name('purchase-orders.create');
+    Route::get('/purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'show'])->name('purchase-orders.show');
 
     Route::middleware('role:superadmin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/staff', [AdminStaffController::class, 'index'])->name('staff.index');

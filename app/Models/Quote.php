@@ -41,6 +41,7 @@ class Quote extends Model
     ];
 
     public const ADMIN_VISIBLE_STATUSES = [
+        self::STATUS_DRAFT,
         self::STATUS_IN_PROGRESS,
         self::STATUS_NEGOTIATION,
         self::STATUS_APPROVED,
@@ -86,15 +87,22 @@ class Quote extends Model
         'tax_amount',
         'total_amount',
         'status',
-        'valid_until',
+        'created_by',
+        'date_needed',
+        'date_requested',
+        'department',
+        'approved_by',
         'admin_notes',
-        'staff_response'
+        'admin_notes_updated_by',
+        'staff_response',
+        'staff_response_updated_by',
     ];
 
     protected $casts = [
-        'valid_until' => 'datetime',
+        'date_needed' => 'datetime',
         'admin_notes_updated_at' => 'datetime',
         'staff_response_updated_at' => 'datetime',
+        'date_requested' => 'datetime',
     ];
 
     public function project()
@@ -110,6 +118,26 @@ class Quote extends Model
     public function statusHistories()
     {
         return $this->hasMany(QuoteStatusHistory::class);
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function adminNotesUpdatedBy()
+    {
+        return $this->belongsTo(User::class, 'admin_notes_updated_by');
+    }
+
+    public function staffResponseUpdatedBy()
+    {
+        return $this->belongsTo(User::class, 'staff_response_updated_by');
     }
 
     public static function statusOptions(): array
@@ -174,15 +202,12 @@ class Quote extends Model
 
     public static function canUpdateStatusForRole(?string $role, string $fromStatus, string $toStatus): bool
     {
-        if (!in_array($toStatus, self::mutableStatusesForRole($role), true)) {
-            return false;
-        }
+        $isNoOpChange = $fromStatus === $toStatus;
+        $isMutableTarget = in_array($toStatus, self::mutableStatusesForRole($role), true);
+        $isApprovedLocked = $fromStatus === self::STATUS_APPROVED && ! $isNoOpChange;
+        $isLockedFinalDecision = !in_array($role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true)
+            && in_array($fromStatus, [self::STATUS_APPROVED, self::STATUS_DECLINED], true);
 
-        // Staff cannot overwrite admin final decisions directly.
-        if (!in_array($role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true) && in_array($fromStatus, [self::STATUS_APPROVED, self::STATUS_DECLINED], true)) {
-            return false;
-        }
-
-        return true;
+        return $isNoOpChange || ($isMutableTarget && ! $isApprovedLocked && ! $isLockedFinalDecision);
     }
 }

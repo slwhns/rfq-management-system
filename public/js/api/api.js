@@ -23,9 +23,14 @@ export async function calculatePrice(projectId) {
 }
 
 export async function generateQuote(data) {
-    const res = await fetch('/api/generate-quote',{
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    const res = await fetch('/quotes/generate',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{
+            'Content-Type':'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+        },
         body: JSON.stringify(data)
     });
     return res.json();

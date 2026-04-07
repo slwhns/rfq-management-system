@@ -50,6 +50,7 @@
                             <th style="text-align:left; padding:12px 8px;">Project</th>
                             <th style="text-align:left; padding:12px 8px;">Date</th>
                             <th style="text-align:center; padding:12px 8px; width:170px;">Status</th>
+                            <th style="text-align:left; padding:12px 8px;">Approved By</th>
                             <th style="text-align:left; padding:12px 8px; min-width:360px;">Notes</th>
                             <th style="text-align:center; padding:12px 8px;">Action</th>
                         </tr>
@@ -64,9 +65,10 @@
                                     @php
                                         $normalizedStatus = \App\Models\Quote::normalizeStatus($quote->status);
                                         $canSelectCurrent = array_key_exists($normalizedStatus, $statusUpdateOptions);
+                                        $isApprovedStatus = $normalizedStatus === \App\Models\Quote::STATUS_APPROVED;
                                     @endphp
                                     <div class="d-flex ai-center jc-center" style="gap:8px; flex-wrap:wrap;">
-                                        <select class="quote-status-select pd-5 bdr-all-22 br-5 fs-12" data-quote-id="{{ $quote->id }}" data-prev-status="{{ $normalizedStatus }}" style="border: 1px solid #d9d9d9; background: #ffffff; color: #222222; min-width: 132px;">
+                                        <select class="quote-status-select pd-5 bdr-all-22 br-5 fs-12" data-quote-id="{{ $quote->id }}" data-prev-status="{{ $normalizedStatus }}" style="border: 1px solid {{ $isApprovedStatus ? '#bdeacb' : '#d9d9d9' }}; background: {{ $isApprovedStatus ? '#eafaf0' : '#ffffff' }}; color: {{ $isApprovedStatus ? '#1f8a4c' : '#222222' }}; min-width: 132px;" {{ $isApprovedStatus ? 'disabled' : '' }}>
                                             @if(!$canSelectCurrent)
                                                 <option value="{{ $normalizedStatus }}" selected>{{ $statusOptions[$normalizedStatus] ?? ucfirst(str_replace('_', ' ', $normalizedStatus)) }}</option>
                                             @endif
@@ -76,6 +78,7 @@
                                         </select>
                                     </div>
                                 </td>
+                                <td style="padding:10px 8px;">{{ $quote->approvedBy->name ?? '-' }}</td>
                                 <td style="padding:10px 8px;">
                                     <div class="d-flex" style="flex-direction:column; gap:6px;">
                                         <div class="fs-11 fw-bold clr-grey1">Admin Note to Staff</div>
@@ -89,14 +92,14 @@
                                             <span class="admin-note-status fs-11 clr-grey1" data-quote-id="{{ $quote->id }}"></span>
                                         </div>
                                         @if($quote->admin_notes_updated_at)
-                                            <div class="fs-11 clr-grey1">Admin note updated: {{ optional($quote->admin_notes_updated_at)->format('d M Y, h:i A') }}</div>
+                                            <div class="fs-11 clr-grey1">Admin note by {{ $quote->adminNotesUpdatedBy->name ?? 'Admin' }} - {{ optional($quote->admin_notes_updated_at)->format('d M Y, h:i A') }}</div>
                                         @endif
                                         <div class="mg-t-8 pd-8 br-5" style="background:#f8f9fb; border:1px solid #e2e6ef;">
                                             <div class="fs-11 fw-bold clr-grey1 mg-b-4">Staff Response</div>
                                             @if(!empty($quote->staff_response))
                                                 <div class="fs-12" style="white-space:pre-wrap; word-break:break-word;">{{ $quote->staff_response }}</div>
                                                 @if($quote->staff_response_updated_at)
-                                                    <div class="fs-11 clr-grey1 mg-t-5">Updated: {{ optional($quote->staff_response_updated_at)->format('d M Y, h:i A') }}</div>
+                                                    <div class="fs-11 clr-grey1 mg-t-5">Response by {{ $quote->staffResponseUpdatedBy->name ?? 'Staff' }} - {{ optional($quote->staff_response_updated_at)->format('d M Y, h:i A') }}</div>
                                                 @endif
                                             @else
                                                 <div class="fs-11 clr-grey1">No response from staff yet</div>
@@ -109,26 +112,34 @@
                                         @php
                                             $canCreatePoRow = in_array(auth()->user()?->normalizedRole(), [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)
                                                 && \App\Models\Quote::normalizeStatus($quote->status) === \App\Models\Quote::STATUS_APPROVED;
+                                            $isApprovedStatus = \App\Models\Quote::normalizeStatus($quote->status) === \App\Models\Quote::STATUS_APPROVED;
                                         @endphp
                                         @if($canCreatePoRow)
-                                            <a href="{{ route('purchase-orders.create', $quote->id) }}" class="quote-action-btn action-po txt-none d-flex ai-center jc-center" title="Create PO" aria-label="Create purchase order" style="width:30px; height:30px; border:1px solid #1f8a4c; color:#1f8a4c; border-radius:6px;">
-                                                <i class="ri-file-paper-2-line"></i>
-                                            </a>
+                                            <form action="{{ route('purchase-orders.create', $quote->id) }}" method="POST" style="display:inline; margin:0; padding:0;">
+                                                @csrf
+                                                <button type="submit" class="quote-action-btn action-po txt-none d-flex ai-center jc-center" title="Create PO" aria-label="Create purchase order" style="width:30px; height:30px; border:1px solid #1f8a4c; color:#1f8a4c; border-radius:6px; background:none; cursor:pointer;">
+                                                    <i class="ri-file-paper-2-line"></i>
+                                                </button>
+                                            </form>
                                         @endif
                                         <a href="{{ route('quotes.show', $quote->id) }}" class="quote-action-btn action-view txt-none d-flex ai-center jc-center" title="View" aria-label="View quote" style="width:30px; height:30px; border:1px solid #2f55c7; color:#2f55c7; border-radius:6px;">
                                             <i class="ri-eye-line"></i>
                                         </a>
-                                        <a href="{{ route('quotes.edit', $quote->id) }}" class="quote-action-btn action-edit txt-none d-flex ai-center jc-center" title="Edit" aria-label="Edit quote" style="width:30px; height:30px; border:1px solid #4b5563; color:#4b5563; border-radius:6px;">
-                                            <i class="ri-edit-line"></i>
-                                        </a>
-                                        <a href="{{ route('quotes.destroy', $quote->id) }}" class="quote-action-btn action-delete txt-none d-flex ai-center jc-center" title="Delete" aria-label="Delete quote" style="width:30px; height:30px; border:1px solid #bf2f2f; color:#bf2f2f; border-radius:6px;" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this quote?')) { document.getElementById('delete-form-{{ $quote->id }}').submit(); }">
-                                            <i class="ri-delete-bin-line"></i>
-                                        </a>
+                                        @if(!$isApprovedStatus)
+                                            <a href="{{ route('quotes.edit', $quote->id) }}" class="quote-action-btn action-edit txt-none d-flex ai-center jc-center" title="Edit" aria-label="Edit quote" style="width:30px; height:30px; border:1px solid #4b5563; color:#4b5563; border-radius:6px;">
+                                                <i class="ri-edit-line"></i>
+                                            </a>
+                                            <a href="{{ route('quotes.destroy', $quote->id) }}" class="quote-action-btn action-delete txt-none d-flex ai-center jc-center" title="Delete" aria-label="Delete quote" style="width:30px; height:30px; border:1px solid #bf2f2f; color:#bf2f2f; border-radius:6px;" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this quote?')) { document.getElementById('delete-form-{{ $quote->id }}').submit(); }">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </a>
+                                        @endif
                                     </div>
-                                    <form id="delete-form-{{ $quote->id }}" action="{{ route('quotes.destroy', $quote->id) }}" method="POST" style="display:none;">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
+                                    @if(!$isApprovedStatus)
+                                        <form id="delete-form-{{ $quote->id }}" action="{{ route('quotes.destroy', $quote->id) }}" method="POST" style="display:none;">
+                                            @csrf
+                                            @method('DELETE')
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -137,7 +148,7 @@
             </div>
 
             <div class="mg-t-15">
-                {{ $quotes->links() }}
+                {{ $quotes->links('vendor.pagination.qs') }}
             </div>
         @endif
     </div>

@@ -20,7 +20,7 @@ function updateSummaryUI(summary) {
     const taxEl = document.getElementById('tax');
     const totalEl = document.getElementById('total');
 
-    if (subtotalEl) subtotalEl.textContent = formatCurrency(summary.subtotal ?? 0, 'RM');
+    if (subtotalEl) subtotalEl.textContent = formatCurrency(summary.after_discount ?? summary.subtotal ?? 0, 'RM');
     if (taxEl) taxEl.textContent = formatCurrency(summary.tax_amount ?? summary.tax ?? 0, 'RM');
     if (totalEl) totalEl.textContent = formatCurrency(summary.total ?? 0, 'RM');
 }
@@ -50,7 +50,7 @@ export async function generatePricingQuote(getCurrentProjectId) {
             return;
         }
 
-        const response = await globalThis.api_request('/api/generate-quote', 'POST', {
+        const response = await globalThis.api_request('/quotes/generate', 'POST', {
             project_id: projectId,
         });
 

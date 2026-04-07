@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
+use App\Models\ComponentSupplier;
 use App\Models\ProjectComponent;
 use App\Models\Quote;
 use App\Models\Supplier;
@@ -31,7 +32,6 @@ class PurchaseOrderController extends Controller
     public function create(Request $request, Quote $quote)
     {
         $quote->load(['project', 'items.component']);
-        $shouldDownload = (bool) $request->boolean('download');
 
         $currentUser = $request->user();
         $role = $currentUser?->normalizedRole();
@@ -40,45 +40,71 @@ class PurchaseOrderController extends Controller
         abort_unless(Quote::normalizeStatus($quote->status) === Quote::STATUS_APPROVED, 422, 'Purchase Order can only be created from an approved Purchase Request.');
 
         $sections = $this->buildCompanySections($quote);
-        $requestedCompany = trim((string) $request->query('company', ''));
+        abort_if($sections->isEmpty(), 422, 'No supplier section is available for this Purchase Request.');
 
-        $selectedSection = $sections->firstWhere('company_name', $requestedCompany) ?? $sections->first();
-        abort_if(!$selectedSection, 422, 'No supplier section is available for this Purchase Request.');
+        // Create POs for all company sections
+        foreach ($sections as $section) {
+            $items = collect($section['items'] ?? []);
+            $supplier = $section['supplier'] ?? null;
+            
+            $vendor = $section['vendor'] ?? [
+                'name' => $section['company_name'] ?? 'Vendor Name',
+                'address_lines' => ['Address'],
+            ];
 
-        $items = collect($selectedSection['items'] ?? []);
+            $this->upsertPurchaseOrder(
+                $quote,
+                $section['company_name'],
+                $supplier?->id,
+                $vendor,
+                $items,
+                (int) $currentUser->id
+            );
+        }
 
-        $vendor = $selectedSection['vendor'] ?? [
-            'name' => $selectedSection['company_name'] ?? 'Vendor Name',
-            'address_lines' => ['Address'],
-        ];
+        return redirect()->route('purchase-orders.index')->with('success', 'Purchase Orders created successfully for all suppliers.');
+    }
 
-        $purchaseOrder = $this->upsertPurchaseOrder(
-            $quote,
-            $selectedSection['company_name'],
-            $vendor,
-            $items,
-            (int) $currentUser->id
-        );
+    public function show(Request $request, PurchaseOrder $purchaseOrder)
+    {
+        $currentUser = $request->user();
+        $role = $currentUser?->normalizedRole();
+
+        abort_unless(in_array($role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true), 403);
+
+        $shouldDownload = (bool) $request->boolean('download');
+        $purchaseOrder->load(['purchaseRequest.project', 'supplier']);
 
         $items = $purchaseOrder->items()->with('component')->get();
         $subtotal = (float) $purchaseOrder->subtotal;
 
+        $supplier = $this->resolveSupplierForPurchaseOrder($purchaseOrder, $items);
+        if ($supplier && !$purchaseOrder->supplier_id) {
+            $purchaseOrder->forceFill(['supplier_id' => $supplier->id])->save();
+        }
+        $vendorAddress = trim((string) ($supplier?->address ?: $purchaseOrder->vendor_address));
+        $vendorPhone = $supplier?->phone ?: $purchaseOrder->vendor_phone;
+
         $deliverTo = [
             'name' => trim((string) ($currentUser?->company_name ?? 'Your Company Name')),
             'address_lines' => array_values(array_filter([
-                $quote->project->project_name ?? null,
-                $quote->project->location ?? null,
+                $purchaseOrder->purchaseRequest->project->project_name ?? null,
+                $purchaseOrder->purchaseRequest->project->location ?? null,
                 'Malaysia',
             ])),
             'email' => $currentUser?->email,
         ];
 
-        return view($this->roleView('purchase-orders.create'), [
-            'quote' => $quote,
+        $vendor = [
+            'name' => $supplier?->name ?? $purchaseOrder->vendor_name,
+            'address_lines' => array_values(array_filter(preg_split('/\r\n|\r|\n/', $vendorAddress) ?: ['Address'])),
+            'phone' => $vendorPhone,
+        ];
+
+        return view($this->roleView('purchase-orders.show'), [
+            'quote' => $purchaseOrder->purchaseRequest,
             'poNumber' => $purchaseOrder->po_number,
             'purchaseOrder' => $purchaseOrder,
-            'companySections' => $sections,
-            'selectedCompany' => $selectedSection['company_name'],
             'items' => $items,
             'subtotal' => $subtotal,
             'vendor' => $vendor,
@@ -87,15 +113,19 @@ class PurchaseOrderController extends Controller
         ]);
     }
 
-    private function upsertPurchaseOrder(Quote $quote, string $companyName, array $vendor, Collection $items, int $userId): PurchaseOrder
+    private function upsertPurchaseOrder(Quote $quote, string $companyName, ?int $supplierId, array $vendor, Collection $items, int $userId): PurchaseOrder
     {
-        return DB::transaction(function () use ($quote, $companyName, $vendor, $items, $userId) {
+        return DB::transaction(function () use ($quote, $companyName, $supplierId, $vendor, $items, $userId) {
             $subtotal = (float) $items->sum(fn ($item) => (float) ($item->line_total ?? 0));
 
-            $purchaseOrder = PurchaseOrder::firstOrNew([
-                'purchase_request_id' => (int) $quote->id,
-                'company_name' => $companyName,
-            ]);
+            $purchaseOrderQuery = PurchaseOrder::query()->where('purchase_request_id', (int) $quote->id);
+            if ($supplierId !== null) {
+                $purchaseOrderQuery->where('supplier_id', $supplierId);
+            } else {
+                $purchaseOrderQuery->where('company_name', $companyName);
+            }
+
+            $purchaseOrder = $purchaseOrderQuery->first() ?? new PurchaseOrder();
 
             if (!$purchaseOrder->exists) {
                 $purchaseOrder->po_number = $this->generatePoNumber();
@@ -103,7 +133,10 @@ class PurchaseOrderController extends Controller
                 $purchaseOrder->status = 'draft';
             }
 
+            $purchaseOrder->purchase_request_id = (int) $quote->id;
             $purchaseOrder->project_id = $quote->project_id;
+            $purchaseOrder->supplier_id = $supplierId ?? $purchaseOrder->supplier_id;
+            $purchaseOrder->company_name = $companyName;
             $purchaseOrder->vendor_name = (string) ($vendor['name'] ?? $companyName);
             $purchaseOrder->vendor_address = implode("\n", $vendor['address_lines'] ?? []);
             $purchaseOrder->vendor_phone = $vendor['phone'] ?? null;
@@ -181,6 +214,7 @@ class PurchaseOrderController extends Controller
 
             return [
                 'company_name' => $companyName,
+                'supplier' => $supplier,
                 'vendor' => [
                     'name' => $supplier?->name ?? $companyName,
                     'address_lines' => array_values(array_filter(preg_split('/\r\n|\r|\n/', $address) ?: ['Address'])),
@@ -199,5 +233,73 @@ class PurchaseOrderController extends Controller
         }
 
         abort(404, "View not found for role: {$view}");
+    }
+
+    private function resolveSupplierForPurchaseOrder(PurchaseOrder $purchaseOrder, Collection $items): ?Supplier
+    {
+        if ($purchaseOrder->relationLoaded('supplier') && $purchaseOrder->supplier) {
+            return $purchaseOrder->supplier;
+        }
+
+        return $this->findSupplierByStoredIdentifiers($purchaseOrder) ?? $this->findSupplierByComponents($items);
+    }
+
+    private function findSupplierByStoredIdentifiers(PurchaseOrder $purchaseOrder): ?Supplier
+    {
+        $supplier = null;
+
+        if ($purchaseOrder->supplier_id) {
+            $supplier = $this->findSupplierById((int) $purchaseOrder->supplier_id);
+        }
+
+        if (!$supplier) {
+            $supplier = $this->findSupplierByName((string) ($purchaseOrder->company_name ?: $purchaseOrder->vendor_name));
+        }
+
+        return $supplier;
+    }
+
+    private function findSupplierById(int $supplierId): ?Supplier
+    {
+        return Supplier::query()->find($supplierId);
+    }
+
+    private function findSupplierByName(string $supplierName): ?Supplier
+    {
+        $supplierName = trim($supplierName);
+
+        if ($supplierName === '') {
+            return null;
+        }
+
+        return Supplier::query()->where('name', $supplierName)->first();
+    }
+
+    private function findSupplierByComponents(Collection $items): ?Supplier
+    {
+        $componentIds = $items->pluck('component_id')->filter()->unique()->values();
+
+        $supplier = null;
+
+        if ($componentIds->isNotEmpty()) {
+            $supplierCounts = ComponentSupplier::query()
+                ->whereIn('component_id', $componentIds)
+                ->pluck('supplier_id')
+                ->filter()
+                ->countBy();
+
+            if ($supplierCounts->isNotEmpty()) {
+                $sortedCounts = $supplierCounts->sortDesc();
+                $topSupplierId = (int) $sortedCounts->keys()->first();
+                $topCount = (int) $sortedCounts->first();
+                $secondCount = (int) ($sortedCounts->values()->skip(1)->first() ?? 0);
+
+                if ($topCount > $secondCount) {
+                    $supplier = $this->findSupplierById($topSupplierId);
+                }
+            }
+        }
+
+        return $supplier;
     }
 }

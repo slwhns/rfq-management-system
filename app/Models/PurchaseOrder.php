@@ -14,6 +14,7 @@ class PurchaseOrder extends Model
         'project_id',
         'po_number',
         'company_name',
+        'supplier_id',
         'vendor_name',
         'vendor_address',
         'vendor_phone',
@@ -41,5 +42,10 @@ class PurchaseOrder extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 }

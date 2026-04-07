@@ -56,6 +56,33 @@ function getItemCategory(item) {
     };
 }
 
+function getCategoryGroupKey(item) {
+    const category = getItemCategory(item);
+    return normalizeFilterValue(category.name || 'uncategorized') || 'uncategorized';
+}
+
+function sortSupplierItemsByCategory(items) {
+    return [...items].sort((left, right) => {
+        const leftCategory = normalizeFilterValue(getItemCategory(left).name || 'uncategorized');
+        const rightCategory = normalizeFilterValue(getItemCategory(right).name || 'uncategorized');
+
+        if (leftCategory !== rightCategory) {
+            return leftCategory.localeCompare(rightCategory, undefined, {
+                sensitivity: 'base',
+                numeric: true,
+            });
+        }
+
+        const leftName = normalizeFilterValue(left?.component_name || left?.component?.component_name || '');
+        const rightName = normalizeFilterValue(right?.component_name || right?.component?.component_name || '');
+
+        return leftName.localeCompare(rightName, undefined, {
+            sensitivity: 'base',
+            numeric: true,
+        });
+    });
+}
+
 function ensureVisibleSelectedCategoryOption() {
     const select = getElement('supplier-item-filter-category');
     const selectedCategoryId = String(selectedSupplierCategoryFilter || '');
@@ -1020,7 +1047,7 @@ async function loadSupplierItems(supplierId) {
             return;
         }
 
-        currentSupplierItems = sortByKey(currentSupplier.component_suppliers, (item) => item?.component_name || item?.component?.component_name);
+        currentSupplierItems = sortSupplierItemsByCategory(currentSupplier.component_suppliers || []);
         updateSupplierItemCategoryFilter(currentSupplierItems);
         currentItemsPage = 1;
         renderSupplierItems(supplierId);
@@ -1105,7 +1132,7 @@ function renderSupplierItems(supplierId) {
 
     const grouped = paginatedItems.reduce((acc, item) => {
         const category = getItemCategory(item);
-        const categoryKey = String(category.id || 'uncategorized');
+        const categoryKey = getCategoryGroupKey(item);
 
         if (!acc[categoryKey]) {
             acc[categoryKey] = {

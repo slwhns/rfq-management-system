@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Models\Component;
+use App\Models\ComponentCategory;
+use App\Models\PurchaseOrder;
+use App\Models\Supplier;
 use App\Models\User;
 
 class DashboardController extends Controller
@@ -14,26 +17,50 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // Get stats for dashboard
-        $stats = [
-            'total_projects' => Project::count(),
-            'active_quotes' => Quote::whereIn('status', [
-                Quote::STATUS_DRAFT,
-                Quote::STATUS_IN_PROGRESS,
-                Quote::STATUS_NEGOTIATION,
-            ])->count(),
-            'total_value' => Quote::sum('total_amount'),
-            'total_components' => Component::count(),
-            'recent_projects' => Project::withCount('components')
-                ->latest()
-                ->take(5)
-                ->get()
+        $currentUser = request()->user();
+        $role = $currentUser?->normalizedRole();
+
+        $viewData = [
+            'role' => $role,
         ];
 
-        // Get all projects for dropdown
-        $projects = Project::all();
+        if (in_array($role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true)) {
+            $pendingReviewPrs = Quote::with('project')
+                ->whereIn('status', [Quote::STATUS_DRAFT, Quote::STATUS_IN_PROGRESS, Quote::STATUS_NEGOTIATION])
+                ->latest()
+                ->take(12)
+                ->get();
 
-        return view($this->roleView('dashboard.index'), compact('stats', 'projects'));
+            $approvedPoCount = PurchaseOrder::where('status', 'approved')->count();
+
+            $viewData['pendingReviewPrs'] = $pendingReviewPrs;
+            $viewData['approvedPoCount'] = $approvedPoCount;
+
+            if ($role === User::ROLE_SUPERADMIN) {
+                $staffUsers = User::query()
+                    ->select(['id', 'name', 'role'])
+                    ->orderBy('name')
+                    ->get()
+                    ->filter(fn (User $user) => $user->normalizedRole() !== User::ROLE_SUPERADMIN)
+                    ->values();
+
+                $viewData['staffUsers'] = $staffUsers;
+            }
+        } else {
+            $quotesWithAdminComments = Quote::with(['project', 'adminNotesUpdatedBy'])
+                ->whereNotNull('admin_notes')
+                ->where('admin_notes', '!=', '')
+                ->latest('admin_notes_updated_at')
+                ->take(12)
+                ->get();
+
+            $viewData['quotesWithAdminComments'] = $quotesWithAdminComments;
+            $viewData['totalItems'] = Component::count();
+            $viewData['totalCategories'] = ComponentCategory::count();
+            $viewData['totalSuppliers'] = Supplier::count();
+        }
+
+        return view($this->roleView('dashboard.index'), $viewData);
     }
 
     private function roleView(string $view): string

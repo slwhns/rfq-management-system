@@ -84,7 +84,7 @@ export function initPurchaseRequestProjects() {
         }
 
         try {
-            const response = await window.api_request('/api/generate-quote', 'POST', { project_id: projectId });
+            const response = await window.api_request('/quotes/generate', 'POST', { project_id: projectId });
             const quoteNumbers = response?.data?.quote_numbers;
             if (Array.isArray(quoteNumbers) && quoteNumbers.length > 0) {
                 window.show_popup_temp?.('success', 'Purchase Request Created', quoteNumbers);

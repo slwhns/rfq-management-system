@@ -21,9 +21,9 @@ class QuoteService
     /**
      * Generate a single purchase request from a project.
      */
-    public function generateFromProject(Project $project)
+    public function generateFromProject(Project $project, ?int $createdBy = null, ?string $department = null)
     {
-        return DB::transaction(function () use ($project) {
+        return DB::transaction(function () use ($project, $createdBy, $department) {
             $projectComponents = ProjectComponent::with('component')
                 ->where('project_id', $project->id)
                 ->get();
@@ -37,7 +37,7 @@ class QuoteService
                 $defaultCompany = 'QS';
             }
 
-            $taxRate = 10.0;
+            $taxRate = (float) ($project->tax_rate ?? 10.0);
             $subtotal = 0.0;
             $discountTotal = 0.0;
             $items = [];
@@ -89,7 +89,9 @@ class QuoteService
                 'tax_amount' => round($taxAmount, 2),
                 'total_amount' => round($totalAmount, 2),
                 'status' => Quote::STATUS_DRAFT,
-                'valid_until' => now()->addDays(30)
+                'created_by' => $createdBy,
+                'date_needed' => now()->addDays(30),
+                'department' => $department,
             ]);
 
             foreach ($items as $item) {

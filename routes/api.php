@@ -41,5 +41,4 @@ Route::delete($projectByIdPath, [ProjectController::class, 'destroy']);
 Route::patch('/project-components/{id}', [ProjectController::class, 'updateComponent']);
 Route::delete('/project-components/{id}', [ProjectController::class, 'destroyComponent']);
 
-Route::post('/generate-quote', [QuoteController::class, 'generate']);
 Route::get('/quotes', [QuoteController::class, 'index']);

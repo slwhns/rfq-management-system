@@ -70,15 +70,17 @@ class PricingService
         }
 
         $afterDiscount = $subtotal - $totalDiscount;
-        $tax = $afterDiscount * 0.10; // 10% tax
+        $taxRate = (float) ($project->tax_rate ?? 10.00);
+        $tax = $afterDiscount * ($taxRate / 100);
         $total = $afterDiscount + $tax;
 
         return [
-            'subtotal' => round($subtotal, 2),
+            'subtotal' => round($afterDiscount, 2),
+            'gross_subtotal' => round($subtotal, 2),
             'discounts' => [],
             'total_discount' => round($totalDiscount, 2),
             'after_discount' => round($afterDiscount, 2),
-            'tax_rate' => 10,
+            'tax_rate' => $taxRate,
             'tax_amount' => round($tax, 2),
             'total' => round($total, 2),
             'items' => $items,

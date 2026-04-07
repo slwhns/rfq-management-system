@@ -61,7 +61,7 @@ function updateProjectSummaryUI(summary = {}) {
     const taxEl = document.getElementById('project-summary-tax');
     const totalEl = document.getElementById('project-summary-total');
 
-    if (subtotalEl) subtotalEl.textContent = formatCurrency(summary.subtotal ?? 0, 'RM');
+    if (subtotalEl) subtotalEl.textContent = formatCurrency(summary.after_discount ?? summary.subtotal ?? 0, 'RM');
     if (discountEl) discountEl.textContent = formatCurrency(summary.total_discount ?? 0, 'RM');
     if (afterDiscountEl) afterDiscountEl.textContent = formatCurrency(summary.after_discount ?? 0, 'RM');
     if (taxEl) taxEl.textContent = formatCurrency(summary.tax_amount ?? 0, 'RM');
@@ -93,7 +93,7 @@ export async function generateProjectQuoteFromSelection() {
     }
 
     try {
-        const response = await api_request('/api/generate-quote', 'POST', {
+        const response = await api_request('/quotes/generate', 'POST', {
             project_id: targetProjectId,
         });
 
@@ -350,6 +350,7 @@ function renderProjectManagerList() {
         const projectName = project.project_name || project.name || 'Untitled Project';
         const location = project.location || '-';
         const projectType = project.project_type || '-';
+        const taxRate = Number(project.tax_rate ?? 10).toFixed(2);
         const componentCount = project.components_count ?? 0;
         const isSelected = projectState.currentProjectId === project.id;
         const badgeMarkup = isSelected
@@ -363,7 +364,7 @@ function renderProjectManagerList() {
                         <div class="fw-bold">${projectName}</div>
                         ${badgeMarkup}
                     </div>
-                    <div class="fs-12 clr-grey1">${location} • ${projectType}</div>
+                    <div class="fs-12 clr-grey1">${location} • ${projectType} • Tax ${taxRate}%</div>
                     <div class="fs-12 clr-grey1 mg-t-5">${componentCount} components</div>
                 </div>
                 <div class="d-flex gap-5">

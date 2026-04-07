@@ -133,7 +133,7 @@
                 <i class="ri-user-3-line"></i>
             </a>
 
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('logout') }}" data-no-spa="true">
                 @csrf
                 <button type="submit" class="profile-rail-btn profile-rail-logout" title="Logout" aria-label="Logout" data-no-spa="true">
                     <i class="ri-logout-box-r-line"></i>

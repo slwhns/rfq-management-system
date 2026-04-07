@@ -46,8 +46,8 @@
                             <td style="padding:10px 8px; text-align:right;">RM{{ number_format((float) $po->total_amount, 2) }}</td>
                             <td style="padding:10px 8px; text-align:center;">
                                 <div class="d-flex ai-center jc-center" style="gap:10px; flex-wrap:wrap;">
-                                    <a href="{{ route('purchase-orders.create', ['quote' => $po->purchase_request_id, 'company' => $po->company_name]) }}" class="txt-none" style="color:#2f55c7;">Open</a>
-                                    <a href="{{ route('purchase-orders.create', ['quote' => $po->purchase_request_id, 'company' => $po->company_name, 'download' => 1]) }}" class="txt-none" style="color:#177a3e;">Download PDF</a>
+                                    <a href="{{ route('purchase-orders.show', $po->id) }}" class="txt-none" style="color:#2f55c7;">Open</a>
+                                    <a href="{{ route('purchase-orders.show', ['purchaseOrder' => $po->id, 'download' => 1]) }}" class="txt-none" style="color:#177a3e;">Download PDF</a>
                                 </div>
                             </td>
                         </tr>
@@ -57,7 +57,7 @@
         </div>
 
         <div class="mg-t-15">
-            {{ $purchaseOrders->links() }}
+            {{ $purchaseOrders->links('vendor.pagination.qs') }}
         </div>
     @endif
 </div>

@@ -96,7 +96,7 @@
             <div id="staff-search-empty" class="pd-15 fs-12 clr-grey1" style="display:none;">No matching staff found.</div>
 
             <div class="mg-t-15">
-                {{ $staffUsers->links() }}
+                {{ $staffUsers->links('vendor.pagination.qs') }}
             </div>
         @endif
     </div>

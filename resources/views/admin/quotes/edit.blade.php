@@ -20,22 +20,26 @@
     @csrf
     @method('PATCH')
 
-    <div class="d-grid mg-b-25" style="grid-template-columns: 1.2fr 1fr 1fr; column-gap: 25px; row-gap: 14px; align-items: end;">
+    <div class="d-grid mg-b-25" style="grid-template-columns: 1fr 1fr; column-gap: 25px; row-gap: 14px; align-items: end;">
         <div>
             <div class="fs-12 mg-b-6">Status</div>
-            <select name="status" class="pd-10 bdr-all-22 br-5" style="width:100%;">
+            <select name="status" class="pd-10 bdr-all-22 br-5" style="width:96%;">
                 @foreach($statusOptions as $status => $label)
                     <option value="{{ $status }}" {{ old('status', $quote->status) === $status ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach
             </select>
         </div>
         <div>
-            <div class="fs-12 mg-b-6">Valid Until</div>
-            <input type="date" name="valid_until" value="{{ old('valid_until', optional($quote->valid_until)->format('Y-m-d')) }}" class="pd-10 bdr-all-22 br-5" style="width:100%;">
+            <div class="fs-12 mg-b-6">Date Requested</div>
+            <input type="date" name="date_requested" value="{{ old('date_requested', optional($quote->date_requested)->format('Y-m-d')) }}" class="pd-10 bdr-all-22 br-5" style="width:90%;">
         </div>
-        <div style="margin-left: 22px;">
+        <div>
             <div class="fs-12 mg-b-6">Tax Rate (%)</div>
-            <input type="number" name="tax_rate" value="{{ old('tax_rate', $quote->tax_rate) }}" step="0.01" min="0" max="100" class="pd-10 bdr-all-22 br-5" style="width:70%;">
+            <input type="number" name="tax_rate" value="{{ old('tax_rate', $quote->tax_rate) }}" step="0.01" min="0" max="100" class="pd-10 bdr-all-22 br-5" style="width:93%;">
+        </div>
+        <div>
+            <div class="fs-12 mg-b-6">Date Needed</div>
+            <input type="date" name="date_needed" value="{{ old('date_needed', optional($quote->date_needed)->format('Y-m-d')) }}" class="pd-10 bdr-all-22 br-5" style="width:90%;">
         </div>
     </div>
 

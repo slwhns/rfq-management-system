@@ -14,11 +14,13 @@ class Project extends Model
         'project_name',
         'location',
         'project_type',
-        'status'
+        'status',
+        'tax_rate'
     ];
 
     protected $casts = [
-        'status' => 'string'
+        'status' => 'string',
+        'tax_rate' => 'float'
     ];
 
     /**

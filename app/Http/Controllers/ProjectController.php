@@ -36,7 +36,8 @@ class ProjectController extends Controller
         $request->validate([
             'project_name' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
-            'project_type' => 'required|in:new,retrofit,expansion'
+            'project_type' => 'required|in:new,retrofit,expansion',
+            'tax_rate' => 'nullable|numeric|min:0|max:100'
         ]);
 
         // Use a default user ID or make it optional
@@ -45,7 +46,8 @@ class ProjectController extends Controller
             'project_name' => $request->project_name,
             'location' => $request->location,
             'project_type' => $request->project_type,
-            'status' => 'draft'
+            'status' => 'draft',
+            'tax_rate' => $request->input('tax_rate', 10)
         ]);
 
         return response()->json([
@@ -84,12 +86,14 @@ class ProjectController extends Controller
             'project_name' => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
             'project_type' => 'required|in:new,retrofit,expansion',
+            'tax_rate' => 'nullable|numeric|min:0|max:100',
         ]);
 
         $project->update([
             'project_name' => $request->project_name,
             'location' => $request->location,
             'project_type' => $request->project_type,
+            'tax_rate' => $request->input('tax_rate', $project->tax_rate ?? 10),
         ]);
 
         return response()->json([

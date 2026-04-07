@@ -8,11 +8,18 @@
     <div class="d-flex ai-center quote-toolbar-actions">
         @php
             $currentRole = auth()->user()?->normalizedRole();
+            $isApprovedStatus = \App\Models\Quote::normalizeStatus($quote->status) === \App\Models\Quote::STATUS_APPROVED;
             $canCreatePo = in_array($currentRole, [\App\Models\User::ROLE_SUPERADMIN, \App\Models\User::ROLE_ADMIN], true)
-                && \App\Models\Quote::normalizeStatus($quote->status) === \App\Models\Quote::STATUS_APPROVED;
+                && $isApprovedStatus;
         @endphp
         @if($canCreatePo)
-            <a href="{{ route('purchase-orders.create', $quote->id) }}" class="bg-green clr-white pd-10 br-5 txt-none">Create PO</a>
+            <form action="{{ route('purchase-orders.create', $quote->id) }}" method="POST" style="display:inline;">
+                @csrf
+                <button type="submit" class="bg-green clr-white pd-10 br-5 txt-none" style="border:0; cursor:pointer;">Create PO</button>
+            </form>
+        @endif
+        @if(!$isApprovedStatus)
+            <a href="{{ route('quotes.edit', $quote->id) }}" class="bg-white clr-blue pd-10 br-5 txt-none">Edit</a>
         @endif
         <button type="button" class="bg-blue clr-white pd-10 br-5 cursor-pointer quote-print-btn" data-print-trigger="true">Print</button>
     </div>
@@ -20,13 +27,10 @@
 
 <div id="quote-template" class="bg-white pd-30 br-10 box-shadow-basic quote-template-card">
     @php
-        $requesterName = optional($quote->project?->user)->name ?? 'Staff/Admin';
-        $departmentName = trim((string) (optional($quote->project?->user)->company_name ?? ''));
-        if ($departmentName === '') {
-            $departmentName = 'General Department';
-        }
-        $dateRequested = optional($quote->created_at)->format('d M Y');
-        $dateNeeded = optional($quote->valid_until)->format('d M Y') ?: '-';
+        $requesterName = optional($quote->createdByUser)->name ?? 'Unknown User';
+        $departmentName = optional($quote->createdByUser)->department ?? $quote->department ?? 'General Department';
+        $dateRequested = optional($quote->date_requested)->format('d M Y') ?: optional($quote->created_at)->format('d M Y');
+        $dateNeeded = optional($quote->date_needed)->format('d M Y') ?: '-';
         $normalizedStatus = \App\Models\Quote::normalizeStatus($quote->status);
         $statusLabels = \App\Models\Quote::statusOptions();
         $statusLabel = $statusLabels[$normalizedStatus] ?? ucfirst(str_replace('_', ' ', $normalizedStatus));
@@ -47,7 +51,7 @@
 
         <div class="quote-header-right">
             <div class="fs-30 fw-bold quote-title">PURCHASE REQUEST</div>
-            <div class="mg-t-8 fs-14 fw-bold"># {{ $quote->quote_number }}</div>
+            <div class="mg-t-8 mg-b-20 fs-14 fw-bold"># {{ $quote->quote_number }}</div>
 
             <div class="quote-meta-grid">
                 <div class="quote-meta-row">
@@ -67,7 +71,7 @@
                     <div class="quote-meta-value">{{ $dateNeeded }}</div>
                 </div>
                 <div class="quote-meta-row">
-                    <div class="quote-meta-label">Purchasing Dept Use Only :</div>
+                    <div class="quote-meta-label" style="white-space: nowrap;">Purchasing Dept Use Only :</div>
                     <div class="quote-meta-value quote-meta-value-compact">{{ $statusLabel }}</div>
                 </div>
             </div>
@@ -166,11 +170,6 @@
             </tr>
         </table>
     </div>
-
-    <div class="mg-t-20 fs-14">
-        If you have any questions concerning this Purchase Request (PR), Contact Name, Phone Number, E-mail
-    </div>
-    <div class="mg-t-20 fs-22 fw-bold" style="text-align:center;">THANK YOU FOR YOUR BUSINESS!</div>
 
 </div>
 

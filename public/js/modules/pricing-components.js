@@ -323,7 +323,6 @@ export async function refreshSelectedProjectComponents(projectId) {
         const lineTotal = lineSubtotal - discountAmount;
         const currency = component.currency || 'RM';
         const supplierName = notes?.supplier_name || '-';
-        const supplierSubscription = notes?.subscription_period || '-';
 
         const row = document.createElement('div');
         row.className = 'pd-10 bdr-bottom-22';
@@ -343,7 +342,6 @@ export async function refreshSelectedProjectComponents(projectId) {
                 <div><span class="clr-grey1">Unit Price:</span> ${formatCurrency(unitPrice, currency)}</div>
                 <div><span class="clr-grey1">Supplier:</span> ${supplierName}</div>
                 <div><span class="clr-grey1">Discount:</span> ${discountPercent}% (${formatCurrency(discountAmount, currency)})</div>
-                <div><span class="clr-grey1">Subscription:</span> ${supplierSubscription}</div>
                 <div><span class="clr-grey1">Total:</span> ${formatCurrency(lineTotal, currency)}</div>
             </div>
         `;
