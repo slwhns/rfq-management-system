@@ -73,10 +73,26 @@ class PurchaseOrderController extends Controller
         abort_unless(in_array($role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true), 403);
 
         $shouldDownload = (bool) $request->boolean('download');
-        $purchaseOrder->load(['purchaseRequest.project', 'supplier']);
+        $purchaseOrder->load(['purchaseRequest.project', 'purchaseRequest.items', 'purchaseRequest.approvedBy', 'purchaseRequest.statusHistories', 'supplier']);
 
-        $items = $purchaseOrder->items()->with('component')->get();
+        $quoteDiscountByComponent = collect($purchaseOrder->purchaseRequest?->items ?? [])
+            ->groupBy('component_id')
+            ->map(fn ($quoteItems) => round((float) ($quoteItems->first()->discount_percent ?? 0), 2));
+
+        $items = $purchaseOrder->items()->with('component')->get()->map(function ($item) use ($quoteDiscountByComponent) {
+            $storedDiscount = round((float) ($item->discount_percent ?? 0), 2);
+            $fallbackDiscount = round((float) ($quoteDiscountByComponent->get($item->component_id) ?? 0), 2);
+
+            // Prefer stored PO discount; fallback to PR discount to keep old POs aligned.
+            $item->discount_percent = $storedDiscount > 0 ? $storedDiscount : $fallbackDiscount;
+
+            return $item;
+        });
         $subtotal = (float) $purchaseOrder->subtotal;
+        $taxRate = round((float) ($purchaseOrder->purchaseRequest?->tax_rate ?? 0), 2);
+        $taxAmount = round($subtotal * ($taxRate / 100), 2);
+        $totalAmount = round($subtotal + $taxAmount, 2);
+        $approvalDetails = $this->resolveApprovalDetails($purchaseOrder);
 
         $supplier = $this->resolveSupplierForPurchaseOrder($purchaseOrder, $items);
         if ($supplier && !$purchaseOrder->supplier_id) {
@@ -107,9 +123,13 @@ class PurchaseOrderController extends Controller
             'purchaseOrder' => $purchaseOrder,
             'items' => $items,
             'subtotal' => $subtotal,
+            'taxRate' => $taxRate,
+            'taxAmount' => $taxAmount,
+            'totalAmount' => $totalAmount,
             'vendor' => $vendor,
             'deliverTo' => $deliverTo,
             'shouldDownload' => $shouldDownload,
+            'approvalDetails' => $approvalDetails,
         ]);
     }
 
@@ -117,6 +137,9 @@ class PurchaseOrderController extends Controller
     {
         return DB::transaction(function () use ($quote, $companyName, $supplierId, $vendor, $items, $userId) {
             $subtotal = (float) $items->sum(fn ($item) => (float) ($item->line_total ?? 0));
+            $taxRate = (float) ($quote->tax_rate ?? 0);
+            $taxAmount = $subtotal * ($taxRate / 100);
+            $totalAmount = $subtotal + $taxAmount;
 
             $purchaseOrderQuery = PurchaseOrder::query()->where('purchase_request_id', (int) $quote->id);
             if ($supplierId !== null) {
@@ -141,7 +164,7 @@ class PurchaseOrderController extends Controller
             $purchaseOrder->vendor_address = implode("\n", $vendor['address_lines'] ?? []);
             $purchaseOrder->vendor_phone = $vendor['phone'] ?? null;
             $purchaseOrder->subtotal = round($subtotal, 2);
-            $purchaseOrder->total_amount = round($subtotal, 2);
+            $purchaseOrder->total_amount = round($totalAmount, 2);
             $purchaseOrder->save();
 
             $purchaseOrder->items()->delete();
@@ -153,6 +176,7 @@ class PurchaseOrderController extends Controller
                     'description' => trim((string) ($item->component->description ?? '')),
                     'quantity' => round((float) ($item->quantity ?? 0), 2),
                     'unit_price' => round((float) ($item->unit_price ?? 0), 2),
+                    'discount_percent' => round((float) ($item->discount_percent ?? 0), 2),
                     'line_total' => round((float) ($item->line_total ?? 0), 2),
                 ]);
             }
@@ -242,6 +266,24 @@ class PurchaseOrderController extends Controller
         }
 
         return $this->findSupplierByStoredIdentifiers($purchaseOrder) ?? $this->findSupplierByComponents($items);
+    }
+
+    private function resolveApprovalDetails(PurchaseOrder $purchaseOrder): array
+    {
+        $quote = $purchaseOrder->purchaseRequest;
+        $approvalHistory = $quote?->statusHistories
+            ?->where('to_status', Quote::STATUS_APPROVED)
+            ->sortByDesc('created_at')
+            ->first();
+        $approvedBy = $quote?->approvedBy;
+
+        return [
+            'approval_date' => $approvalHistory?->created_at,
+            'approved_by_name' => $approvedBy?->name,
+            'approved_by_department' => $approvedBy?->department,
+            'approved_by_email' => $approvedBy?->email,
+            'approved_by_phone' => $approvedBy?->phone_number,
+        ];
     }
 
     private function findSupplierByStoredIdentifiers(PurchaseOrder $purchaseOrder): ?Supplier

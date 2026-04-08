@@ -90,6 +90,7 @@ class QuoteService
                 'total_amount' => round($totalAmount, 2),
                 'status' => Quote::STATUS_DRAFT,
                 'created_by' => $createdBy,
+                'date_requested' => now(),
                 'date_needed' => now()->addDays(30),
                 'department' => $department,
             ]);

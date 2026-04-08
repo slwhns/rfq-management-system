@@ -88,6 +88,16 @@
                     <td style="border:1px solid #222; padding:10px; vertical-align:top;">
                         <div class="fw-bold">{{ $item->component->component_name ?? 'Item' }}</div>
                         <div class="mg-t-4" style="white-space: pre-wrap;">{{ $item->component->description ?? '-' }}</div>
+                        @php
+                            $discountPercent = (float) ($item->discount_percent ?? 0);
+                            $discountAmount = ((float) ($item->quantity ?? 0) * (float) ($item->unit_price ?? 0)) * ($discountPercent / 100);
+                        @endphp
+                        @if($discountPercent > 0)
+                            <div class="mg-t-4" style="font-size:12px; color:#444; display:flex; justify-content:space-between; gap:8px;">
+                                <span>Discount: {{ number_format($discountPercent, 2) }}%</span>
+                                <span>MYR {{ number_format($discountAmount, 2) }}</span>
+                            </div>
+                        @endif
                     </td>
                     <td style="border:1px solid #222; padding:10px; text-align:right; vertical-align:top;">{{ number_format((float) $item->quantity, 2) }}</td>
                     <td style="border:1px solid #222; padding:10px; text-align:right; vertical-align:top;">{{ number_format((float) $item->unit_price, 2) }}</td>
@@ -113,8 +123,12 @@
                 <td style="border:1px solid #222; padding:8px 10px; text-align:right;">{{ number_format($subtotal, 2) }}</td>
             </tr>
             <tr>
+                <td style="border:1px solid #222; padding:8px 10px; text-align:right;">Tax ({{ number_format((float) ($taxRate ?? 0), 2) }}%)</td>
+                <td style="border:1px solid #222; padding:8px 10px; text-align:right;">{{ number_format((float) ($taxAmount ?? 0), 2) }}</td>
+            </tr>
+            <tr>
                 <td style="border:1px solid #222; padding:10px; text-align:right; font-weight:800; background:#ffffff;">Total</td>
-                <td style="border:1px solid #222; padding:10px; text-align:right; font-weight:800; background:#ffffff;">MYR{{ number_format($subtotal, 2) }}</td>
+                <td style="border:1px solid #222; padding:10px; text-align:right; font-weight:800; background:#ffffff;">MYR{{ number_format((float) ($totalAmount ?? $subtotal), 2) }}</td>
             </tr>
         </table>
     </div>
@@ -130,6 +144,30 @@
         <div>1. Please send copies of your invoice.</div>
         <div>2. Follow the prices, terms, delivery method, and specifications listed above.</div>
         <div>3. Notify us immediately if you are unable to deliver as specified.</div>
+    </div>
+
+    <div class="d-flex jc-end mg-t-25">
+        <div style="width:340px; text-align:right; padding-top:12px; border-top:1px solid #d9d9d9;">
+            <div class="fw-bold mg-b-6" style="font-size:13px; letter-spacing:0.3px;">PO Approval</div>
+            <div style="display:grid; grid-template-columns:128px 1fr; column-gap:10px; row-gap:6px; font-size:13px; align-items:start;">
+                <div style="text-align:left;">Approval Date :</div>
+                <div style="text-align:right;">{{ !empty($approvalDetails['approval_date']) ? $approvalDetails['approval_date']->format('d M Y') : '-' }}</div>
+
+                <div style="text-align:left;">Approved By :</div>
+                <div style="text-align:right; line-height:1.35;">
+                    <div class="fw-bold">{{ $approvalDetails['approved_by_name'] ?? '-' }}</div>
+                    @if(!empty($approvalDetails['approved_by_department']))
+                        <div>{{ $approvalDetails['approved_by_department'] }}</div>
+                    @endif
+                    @if(!empty($approvalDetails['approved_by_email']))
+                        <div>{{ $approvalDetails['approved_by_email'] }}</div>
+                    @endif
+                    @if(!empty($approvalDetails['approved_by_phone']))
+                        <div>{{ $approvalDetails['approved_by_phone'] }}</div>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

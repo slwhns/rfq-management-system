@@ -15,6 +15,7 @@ class PurchaseOrderItem extends Model
         'description',
         'quantity',
         'unit_price',
+        'discount_percent',
         'line_total',
     ];
 
