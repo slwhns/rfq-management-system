@@ -23,7 +23,7 @@
         <div class="bg-white5 pd-20 br-10 box-shadow-basic">
             <div class="fw-bold mg-b-10">Staff Directory</div>
             <div class="fs-12 clr-grey1 mg-b-10">Name and role list</div>
-            <div style="max-height: 280px; overflow-y: auto; border:1px solid #ececec; border-radius:8px;">
+            <div style="border:1px solid #ececec; border-radius:8px; {{ (($staffUsers ?? collect())->count() > 4) ? 'max-height: 170px; overflow-y: auto;' : '' }}">
                 @forelse(($staffUsers ?? collect()) as $staff)
                     <div class="d-flex jc-between ai-center pd-10" style="border-bottom:1px solid #f1f1f1;">
                         <div class="fs-12 fw-bold">{{ $staff->name }}</div>
