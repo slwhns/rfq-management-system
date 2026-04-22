@@ -15,9 +15,9 @@ function sortByKey(items, keySelector) {
 }
 
 /**
- * Components Module
+ * Items Module
  */
-export async function loadComponents(categoryId) {
+export async function loadItems(categoryId) {
     const { data } = await globalThis.api_request(`/api/components/${categoryId}`, 'GET');
     const components = sortByKey(data || [], (component) => component?.component_name);
 
@@ -98,13 +98,13 @@ async function addToProject(componentId, quantity, projectId) {
         const response = await API.addComponent(projectId, componentId, quantity);
         
         if (response.success) {
-            showNotification('Component added successfully!', 'success');
+            showNotification('Item added successfully!', 'success');
             // Trigger price recalculation
             document.dispatchEvent(new CustomEvent('component-added'));
         }
     } catch (error) {
         console.error(error);
-        showNotification('Failed to add component', 'error');
+        showNotification('Failed to add item', 'error');
     }
 }
 

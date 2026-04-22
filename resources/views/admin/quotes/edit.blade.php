@@ -3,8 +3,8 @@
 @section('content')
 <div class="bg-white5 pd-15 bdr-bottom-22 mg-b-20">
     <div class="d-flex jc-between ai-center">
-        <div class="fs-15 fw-bold">Edit Purchase Request (PR) - {{ $quote->quote_number }}</div>
-        <a href="{{ route('quotes.show', $quote->id) }}" class="fs-12 clr-blue txt-none">Back to Purchase Request</a>
+        <div class="fs-15 fw-bold">Edit Request for Quotation (RFQ) - {{ $quote->quote_number }}</div>
+        <a href="{{ route('rfqs.show', $quote->id) }}" class="fs-12 clr-blue txt-none">Back to RFQ</a>
     </div>
 </div>
 
@@ -16,7 +16,7 @@
     </div>
 @endif
 
-<form method="POST" action="{{ route('quotes.update', $quote->id) }}" class="bg-white5 pd-20 br-10 box-shadow-basic">
+<form method="POST" action="{{ route('rfqs.update', $quote->id) }}" class="bg-white5 pd-20 br-10 box-shadow-basic">
     @csrf
     @method('PATCH')
 
@@ -43,11 +43,11 @@
         </div>
     </div>
 
-    <div class="fw-bold mg-b-10">PR Items</div>
+    <div class="fw-bold mg-b-10">RFQ Items</div>
     <table style="width:100%; border-collapse: collapse;">
         <thead>
             <tr style="border-bottom:1px solid #d8d8d8;">
-                <th style="text-align:left; padding:10px 8px;">Component</th>
+                <th style="text-align:left; padding:10px 8px;">Item</th>
                 <th style="text-align:right; padding:10px 8px; width:120px;">Quantity</th>
                 <th style="text-align:right; padding:10px 8px; width:160px;">Unit Price</th>
                 <th style="text-align:right; padding:10px 8px; width:160px;">Discount %</th>
@@ -58,7 +58,7 @@
                 <tr style="border-bottom:1px solid #ececec;">
                     <td style="padding:10px 8px;">
                         <div>{{ $item->component->component_name ?? '-' }}</div>
-                        <div class="fs-11 clr-grey1">{{ $item->component->component_code ?? '-' }}</div>
+                        <div class="fs-11 clr-grey1">SKU: {{ $item->component->component_code ?? '-' }}</div>
                         <input type="hidden" name="items[{{ $index }}][id]" value="{{ $item->id }}">
                     </td>
                     <td style="padding:10px 8px; text-align:right;">
@@ -76,8 +76,9 @@
     </table>
 
     <div class="d-flex jc-end mg-t-20" style="gap:10px;">
-        <a href="{{ route('quotes.index') }}" class="pd-10 br-5 txt-none" style="border:1px solid #d0d0d0; color:#555;">Cancel</a>
+        <a href="{{ route('rfqs.index') }}" class="pd-10 br-5 txt-none" style="border:1px solid #d0d0d0; color:#555;">Cancel</a>
         <button type="submit" class="bg-blue clr-white pd-10 br-5 cursor-pointer" style="border:0;">Save Changes</button>
     </div>
 </form>
 @endsection
+

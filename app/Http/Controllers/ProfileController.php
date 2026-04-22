@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
 {
@@ -24,9 +27,16 @@ class ProfileController extends Controller
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'company_name' => 'nullable|string|max:255',
             'phone_number' => 'nullable|string|max:20',
-            'department' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:1000',
             'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'current_password' => 'nullable|required_with:new_password,new_password_confirmation|string',
+            'new_password' => 'nullable|string|min:8|confirmed|different:current_password',
         ]);
+
+        // Allow profile updates to continue even if the address migration is not yet applied.
+        if (!Schema::hasColumn('users', 'address')) {
+            unset($validated['address']);
+        }
 
         if ($request->hasFile('profile_photo')) {
             if ($user->profile_photo_path) {
@@ -36,7 +46,18 @@ class ProfileController extends Controller
             $validated['profile_photo_path'] = $request->file('profile_photo')->store('profile-photos', 'public');
         }
 
+        if (!empty($validated['new_password'])) {
+            if (empty($validated['current_password']) || !Hash::check((string) $validated['current_password'], (string) $user->password)) {
+                throw ValidationException::withMessages([
+                    'current_password' => ['Current password is incorrect.'],
+                ]);
+            }
+
+            $validated['password'] = Hash::make((string) $validated['new_password']);
+        }
+
         unset($validated['profile_photo']);
+        unset($validated['current_password'], $validated['new_password'], $validated['new_password_confirmation']);
 
         // Update the user
         $user->update($validated);

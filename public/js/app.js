@@ -9,6 +9,7 @@ import { initPurchaseOrders } from './modules/purchase-orders.js';
 import { initAdminStaffIndex } from './modules/admin-staff-index.js';
 import { initProfileRail } from './modules/profile-rail.js';
 import { initPrintTriggers } from './modules/print-trigger.js';
+import { initQuotationPage } from './modules/quotation-page.js';
 
 function formatAmount(value) {
     const amount = Number(value || 0);
@@ -61,6 +62,8 @@ async function initPricingPageModules() {
 }
 
 function initPageModules() {
+    globalThis.initProfilePage?.();
+
     const hasPricingLayout = isPricingPage();
     if (hasPricingLayout) {
         initPricingPageModules();
@@ -78,6 +81,11 @@ function initPageModules() {
 
     if (document.getElementById('purchase-orders-page')) {
         initPurchaseOrders();
+        return;
+    }
+
+    if (document.getElementById('quotation-page')) {
+        initQuotationPage();
         return;
     }
 

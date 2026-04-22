@@ -42,7 +42,7 @@
                 Calculate
             </button>
             <button type="button" class="bg-green clr-white pd-10 br-5 cursor-pointer" style="border: 0;" onclick="generateQuote()">
-                Generate Purchase Request (PR)
+                Generate RFQ
             </button>
         </div>
     </div>
@@ -51,7 +51,7 @@
 <div class="d-grid gap-20 mg-b-20" style="grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr); align-items: start;">
     <div class="bg-white5 pd-20 br-10 box-shadow-basic">
         <div class="d-flex ai-center jc-between pd-10 fw-bold">
-            <div>Component Details</div>
+            <div>Item Details</div>
         </div>
 
         <div class="d-grid gap-10 pd-10 mg-b-10" style="grid-template-columns: minmax(0, 1fr) 220px 110px; align-items: center;">
@@ -59,7 +59,7 @@
                 id="component-search"
                 class="pd-10 bdr-all-22 br-5"
                 type="text"
-                placeholder="Search by name, code, description, supplier"
+                placeholder="Search by name, SKU, description, supplier"
             >
 
             <select id="component-filter" class="pd-10 bdr-all-22 br-5">
@@ -82,7 +82,7 @@
 
     <div class="bg-white5 pd-20 br-10 box-shadow-basic h-mc">
         <div class="d-flex jc-between ai-center mg-b-10">
-            <div class="fw-bold">Selected Components</div>
+            <div class="fw-bold">Selected Items</div>
             <div class="fs-12 clr-grey1">By selected project</div>
         </div>
 
@@ -151,28 +151,20 @@
 <div id="project-component-modal" class="modal-dialog" style="max-width: 520px;">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Edit Project Component</h3>
+            <h3>Edit Project Item</h3>
             <button class="modal-close" onclick="closeAllModals()">×</button>
         </div>
         <div class="modal-body">
             <div class="d-grid gap-15">
                 <div class="pd-10 bg-white5 br-5">
                     <div class="fw-bold" id="project-component-modal-name">-</div>
-                    <div class="fs-12 clr-grey1">Code: <span id="project-component-modal-code">-</span></div>
+                    <div class="fs-12 clr-grey1">SKU: <span id="project-component-modal-code">-</span></div>
                 </div>
                 <div>
                     <label class="fs-12 fw-bold mg-b-5 d-block" for="project-component-modal-quantity">Quantity *</label>
                     <input id="project-component-modal-quantity" class="pd-10 bdr-all-22 br-5 w-100" type="number" min="1" step="1" placeholder="Enter quantity">
                 </div>
-                <div>
-                    <label class="fs-12 fw-bold mg-b-5 d-block" for="project-component-modal-discount">Discount Level</label>
-                    <select id="project-component-modal-discount" class="pd-10 bdr-all-22 br-5 w-100">
-                        <option value="0">No Discount</option>
-                        <option value="5">5%</option>
-                        <option value="10">10%</option>
-                        <option value="15">15%</option>
-                    </select>
-                </div>
+                
             </div>
         </div>
         <div class="modal-footer">
@@ -200,3 +192,4 @@
 </div>
 
 @endsection
+

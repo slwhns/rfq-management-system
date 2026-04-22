@@ -19,7 +19,7 @@ class QuoteService
     }
 
     /**
-     * Generate a single purchase request from a project.
+    * Generate a single RFQ from a project.
      */
     public function generateFromProject(Project $project, ?int $createdBy = null, ?string $department = null)
     {
@@ -30,11 +30,6 @@ class QuoteService
 
             if ($projectComponents->isEmpty()) {
                 return collect();
-            }
-
-            $defaultCompany = trim((string) optional($project->user)->company_name);
-            if ($defaultCompany === '') {
-                $defaultCompany = 'QS';
             }
 
             $taxRate = (float) ($project->tax_rate ?? 10.0);
@@ -81,7 +76,7 @@ class QuoteService
 
             $quote = Quote::create([
                 'project_id' => $project->id,
-                'quote_number' => $this->generateQuoteNumberForCompanyName($defaultCompany),
+                'quote_number' => $this->generateQuoteNumber(),
                 'version' => 1,
                 'subtotal' => round($subtotal, 2),
                 'discount_total' => round($discountTotal, 2),
@@ -116,52 +111,19 @@ class QuoteService
     /**
      * Generate unique quote number
      */
-    protected function generateQuoteNumberForCompanyName(string $companyName)
+    protected function generateQuoteNumber()
     {
-        $prefix = $this->generatePrefixFromCompanyName($companyName);
+        $prefix = 'QUO';
 
         $lastQuote = Quote::where('quote_number', 'like', $prefix . '-%')
             ->orderBy('id', 'desc')
             ->first();
 
         $nextNumber = 1;
-        if ($lastQuote && preg_match('/^[A-Z]+-(\d+)$/', $lastQuote->quote_number, $matches)) {
+        if ($lastQuote && preg_match('/^QUO-(\d+)$/', $lastQuote->quote_number, $matches)) {
             $nextNumber = ((int) $matches[1]) + 1;
         }
 
         return sprintf('%s-%03d', $prefix, $nextNumber);
-    }
-
-    /**
-     * Prefix rules:
-     * - If first token is a short acronym (<=3 chars), use it (e.g. "TS").
-     * - Otherwise use first letters of first two significant words (e.g. "Samajaya Electrical" => "SE").
-     */
-    protected function generatePrefixFromCompanyName(string $companyName)
-    {
-        $prefix = 'QS';
-        $cleaned = Str::upper(preg_replace('/[^A-Za-z0-9\s]+/', ' ', $companyName));
-        $tokens = array_values(array_filter(preg_split('/\s+/', $cleaned ?: '')));
-
-        if (!empty($tokens)) {
-            $ignored = ['SDN', 'BHD', 'LTD', 'LLP', 'PLC'];
-            $significant = array_values(array_filter($tokens, function ($token) use ($ignored) {
-                return !in_array($token, $ignored, true);
-            }));
-
-            if (!empty($significant)) {
-                $first = $significant[0];
-                if (strlen($first) <= 3) {
-                    $prefix = substr($first, 0, 3);
-                } else {
-                    $prefix = substr($first, 0, 1);
-                    if (isset($significant[1])) {
-                        $prefix .= substr($significant[1], 0, 1);
-                    }
-                }
-            }
-        }
-
-        return $prefix;
     }
 }

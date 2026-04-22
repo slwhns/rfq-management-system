@@ -121,7 +121,7 @@ function updatePaginationSummary(totalItems, totalPages) {
     }
 
     if (totalItems === 0) {
-        pagination.innerHTML = '<div>No matching components found.</div>';
+        pagination.innerHTML = '<div>No matching items found.</div>';
         return;
     }
 
@@ -291,7 +291,7 @@ export async function refreshSelectedProjectComponents(projectId) {
             projectNameEl.textContent = 'No project selected';
         }
 
-        container.innerHTML = '<div class="pd-10 clr-grey1">Select a project to view selected components.</div>';
+        container.innerHTML = '<div class="pd-10 clr-grey1">Select a project to view selected items.</div>';
         return;
     }
 
@@ -303,16 +303,16 @@ export async function refreshSelectedProjectComponents(projectId) {
         projectNameEl.textContent = projectName;
     }
 
-    const selectedComponents = sortByKey(Array.isArray(project?.components) ? project.components : [], (projectComponent) => projectComponent?.component?.component_name);
+    const selectedItems = sortByKey(Array.isArray(project?.components) ? project.components : [], (projectComponent) => projectComponent?.component?.component_name);
 
-    if (selectedComponents.length === 0) {
-        container.innerHTML = '<div class="pd-10 clr-grey1">No components selected for this project yet.</div>';
+    if (selectedItems.length === 0) {
+        container.innerHTML = '<div class="pd-10 clr-grey1">No items selected for this project yet.</div>';
         return;
     }
 
     container.innerHTML = '';
 
-    selectedComponents.forEach((projectComponent) => {
+    selectedItems.forEach((projectComponent) => {
         const component = projectComponent.component || {};
         const notes = parseProjectComponentNotes(projectComponent);
         const quantity = Number(projectComponent.quantity || 0);
@@ -330,18 +330,17 @@ export async function refreshSelectedProjectComponents(projectId) {
             <div class="d-flex jc-between ai-start mg-b-8">
                 <div>
                     <div class="fw-bold">${component.component_name || '-'}</div>
-                    <div class="fs-12 clr-grey1">Code: ${component.component_code || '-'}</div>
+                    <div class="fs-12 clr-grey1">SKU: ${component.component_code || '-'}</div>
                 </div>
                 <div class="d-flex fd-column" style="row-gap: 2px;">
-                    <button type="button" class="btn-icon" title="Edit Component" data-edit-project-component-id="${projectComponent.id}"><i class="ri-edit-box-line"></i></button>
-                    <button type="button" class="btn-icon" title="Delete Component" data-delete-project-component-id="${projectComponent.id}"><i class="ri-delete-bin-5-line"></i></button>
+                    <button type="button" class="btn-icon" title="Edit Item" data-edit-project-component-id="${projectComponent.id}"><i class="ri-edit-box-line"></i></button>
+                    <button type="button" class="btn-icon" title="Delete Item" data-delete-project-component-id="${projectComponent.id}"><i class="ri-delete-bin-5-line"></i></button>
                 </div>
             </div>
-            <div class="d-grid gap-10 fs-12" style="grid-template-columns: repeat(3, minmax(120px, 1fr));">
+            <div class="d-grid gap-10 fs-12" style="grid-template-columns: repeat(4, minmax(120px, 1fr));">
                 <div><span class="clr-grey1">Qty:</span> ${quantity}</div>
                 <div><span class="clr-grey1">Unit Price:</span> ${formatCurrency(unitPrice, currency)}</div>
                 <div><span class="clr-grey1">Supplier:</span> ${supplierName}</div>
-                <div><span class="clr-grey1">Discount:</span> ${discountPercent}% (${formatCurrency(discountAmount, currency)})</div>
                 <div><span class="clr-grey1">Total:</span> ${formatCurrency(lineTotal, currency)}</div>
             </div>
         `;
@@ -403,7 +402,7 @@ function buildPricingComponentMarkup(component, offer = null, offerIndex = 0) {
                             <button type="button" class="bg-blue clr-white pd-5 br-5 mg-l-10 cursor-pointer" style="border: 0;" data-add-component-id="${component.id}" data-supplier-id="${meta.supplierId}" data-qty-id="${meta.qtyInputId}">Add</button>
                         </div>
                     </div>
-                    <div class="fs-12 clr-grey1 mg-b-8">Code: ${meta.offerCode}</div>
+                    <div class="fs-12 clr-grey1 mg-b-8">SKU: ${meta.offerCode}</div>
                     <div class="fs-12 clr-grey1 mg-b-10">${meta.offerDescription}</div>
                     <div class="d-grid gap-10 fs-12" style="grid-template-columns: repeat(3, minmax(120px, 1fr));">
                         <div><span class="clr-grey1">Price:</span> ${formatCurrency(meta.offerPrice, meta.offerCurrency)}</div>
@@ -421,7 +420,7 @@ function buildPricingComponentMarkup(component, offer = null, offerIndex = 0) {
         supplierCardsMarkup = `
             <div class="pd-12 br-8 bdr-all-22 bg-white5">
                 <div class="d-flex jc-between ai-center fs-12 mg-b-6">
-                    <div class="fw-bold">Base Component</div>
+                    <div class="fw-bold">Base Item</div>
                     <div class="d-flex ai-center">
                         <input class="w-60 pd-5 bdr-all-22 br-5" type="number" id="qty-${component.id}-base" value="${componentMinQty}" min="${componentMinQty}" ${baseMaxAttr}>
                         <button type="button" class="bg-blue clr-white pd-5 br-5 mg-l-10 cursor-pointer" style="border: 0;" data-add-component-id="${component.id}" data-supplier-id="" data-qty-id="qty-${component.id}-base">Add</button>
@@ -434,13 +433,13 @@ function buildPricingComponentMarkup(component, offer = null, offerIndex = 0) {
         supplierCardsMarkup = `
             <div class="pd-14 br-8 bdr-all-22 bg-white5">
                 <div class="d-flex jc-between ai-center mg-b-8">
-                    <div class="fw-bold">Base Component</div>
+                    <div class="fw-bold">Base Item</div>
                     <div class="d-flex ai-center">
                         <input class="w-60 pd-5 bdr-all-22 br-5" type="number" id="qty-${component.id}-base" value="${componentMinQty}" min="${componentMinQty}" ${baseMaxAttr}>
                         <button type="button" class="bg-blue clr-white pd-5 br-5 mg-l-10 cursor-pointer" style="border: 0;" data-add-component-id="${component.id}" data-supplier-id="" data-qty-id="qty-${component.id}-base">Add</button>
                     </div>
                 </div>
-                <div class="fs-12 clr-grey1 mg-b-8">Code: ${componentCode}</div>
+                <div class="fs-12 clr-grey1 mg-b-8">SKU: ${componentCode}</div>
                 <div class="fs-12 clr-grey1 mg-b-10">${description}</div>
                 <div class="d-grid gap-10 fs-12" style="grid-template-columns: repeat(3, minmax(120px, 1fr));">
                     <div><span class="clr-grey1">Price:</span> ${formatCurrency(basePrice, currency)}</div>
@@ -490,10 +489,10 @@ function bindAddComponentActions(container, component) {
                 });
 
                 await refreshSelectedProjectComponents(currentProjectId);
-                globalThis.show_popup_temp('success', 'Success', ['Component added']);
+                globalThis.show_popup_temp('success', 'Success', ['Item added']);
             } catch (error) {
                 console.error(error);
-                globalThis.show_popup_temp('error', 'Error', ['Failed to add component']);
+                globalThis.show_popup_temp('error', 'Error', ['Failed to add item']);
             }
         });
     });
@@ -528,8 +527,8 @@ function renderPricingComponentsList() {
         const emptyState = document.createElement('div');
         emptyState.className = 'pd-10 clr-grey1';
         emptyState.textContent = pricingComponentState.allComponents.length === 0
-            ? 'No components available in this category.'
-            : 'No components matched your search.';
+            ? 'No items available in this category.'
+            : 'No items matched your search.';
         list.appendChild(emptyState);
 
         if (pagination) {

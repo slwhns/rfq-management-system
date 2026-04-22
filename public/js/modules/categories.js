@@ -1,5 +1,5 @@
 import API from '../api/client.js';
-import { loadComponents } from './components.js';
+import { loadItems } from './components.js';
 
 function normalizeSortValue(value) {
     return String(value || '').trim();
@@ -35,10 +35,10 @@ export async function loadCategories() {
 
             li.onclick = async () => {
                 try {
-                    await loadComponents(category.id);
+                    await loadItems(category.id);
                 } catch (error) {
-                    console.error('Failed to load components:', error);
-                    showError('Failed to load components. Please try again.');
+                    console.error('Failed to load items:', error);
+                    showError('Failed to load items. Please try again.');
                 }
             };
 

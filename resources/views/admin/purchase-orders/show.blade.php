@@ -6,10 +6,10 @@
 <div class="d-flex jc-between ai-center mg-b-20 purchase-order-toolbar" style="gap:12px; flex-wrap:wrap;">
     <div class="d-flex ai-center" style="gap:10px; flex-wrap:wrap;">
         <a href="{{ route('purchase-orders.index') }}" class="fs-12 clr-blue txt-none">Back</a>
-        <a href="{{ route('quotes.show', $quote->id) }}" class="fs-12 clr-blue txt-none">Back to PR {{ $quote->quote_number }}</a>
+        <a href="{{ route('rfqs.show', $quote->id) }}" class="fs-12 clr-blue txt-none">Back to RFQ {{ $quote->quote_number }}</a>
     </div>
     <div class="d-flex ai-center" style="gap:10px; flex-wrap:wrap;">
-        <button type="button" class="bg-blue clr-white pd-10 br-5 cursor-pointer" style="border:0;" onclick="window.print()">Print</button>
+        <button type="button" class="bg-blue clr-white pd-10 br-5 cursor-pointer" style="border:0;" data-print-trigger="true" data-print-quote-id="{{ $quote->quote_number }}" data-print-project-name="{{ $quote->project->project_name ?? 'project' }}">Print</button>
     </div>
 </div>
 
@@ -43,6 +43,7 @@
                 <div class="fw-bold mg-b-8">Deliver To</div>
                 <div class="fs-14">
                     <div class="fw-bold">KHALEEF NET SDN BHD</div>
+                    <div>{{ $quote->project->project_name ?? 'Project Name' }}</div>
                     <div>LOT 133 BLOCK P, 1ST FLOOR,</div>
                     <div>LORONG PLAZA PERMAI 2</div>
                     <div>ALAMESRA</div>
@@ -95,7 +96,7 @@
                         @if($discountPercent > 0)
                             <div class="mg-t-4" style="font-size:12px; color:#444; display:flex; justify-content:space-between; gap:8px;">
                                 <span>Discount: {{ number_format($discountPercent, 2) }}%</span>
-                                <span>MYR {{ number_format($discountAmount, 2) }}</span>
+                                <span>RM {{ number_format($discountAmount, 2) }}</span>
                             </div>
                         @endif
                     </td>
@@ -128,7 +129,7 @@
             </tr>
             <tr>
                 <td style="border:1px solid #222; padding:10px; text-align:right; font-weight:800; background:#ffffff;">Total</td>
-                <td style="border:1px solid #222; padding:10px; text-align:right; font-weight:800; background:#ffffff;">MYR{{ number_format((float) ($totalAmount ?? $subtotal), 2) }}</td>
+                <td style="border:1px solid #222; padding:10px; text-align:right; font-weight:800; background:#ffffff;">RM{{ number_format((float) ($totalAmount ?? $subtotal), 2) }}</td>
             </tr>
         </table>
     </div>
@@ -171,3 +172,4 @@
     </div>
 </div>
 @endsection
+

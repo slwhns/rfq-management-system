@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>QS System</title>
+    <title>@yield('title', 'QS System')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Custom CSS -->
@@ -18,7 +18,7 @@
 @php
     $currentUser = auth()->user();
     $displayName = $currentUser?->name ?? 'User';
-    $displayRole = ucfirst($currentUser?->normalizedRole() ?? 'staff');
+    $displayRole = ucfirst($currentUser?->normalizedRole() ?? 'client');
     $avatarInitial = strtoupper(substr($displayName, 0, 1));
     $avatarUrl = $currentUser?->profile_photo_path ? \Illuminate\Support\Facades\Storage::url($currentUser->profile_photo_path) : null;
 @endphp
@@ -35,49 +35,66 @@
             </div>
         </div>
 
-        <div class="app-nav-group-label">Main</div>
+        <div class="app-nav-group-label">
+            <span class="app-nav-group-label-short">Main</span>
+            <span class="app-nav-group-label-full">Main</span>
+        </div>
 
         <button type="button" data-route="dashboard" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('dashboard') ? 'app-nav-active' : '' }}"
             onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/dashboard')">
             <span class="app-nav-icon"><i class="ri-home-2-line"></i></span>
-            <span class="app-nav-text">Dashboard</span>
+            <span class="app-nav-text">
+                <span class="app-nav-text-short">Home</span>
+                <span class="app-nav-text-full">Dashboard</span>
+            </span>
         </button>
 
-        <div class="app-nav-group-label">Management</div>
+        <div class="app-nav-group-label">
+            <span class="app-nav-group-label-short">Man.</span>
+            <span class="app-nav-group-label-full">Management</span>
+        </div>
 
-        <button type="button" data-route="quotes" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('quotes*') ? 'app-nav-active' : '' }}"
-            onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/quotes')">
+        <button type="button" data-route="rfqs" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('quotes*') || request()->is('rfqs*') ? 'app-nav-active' : '' }}"
+            onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/rfqs')">
             <span class="app-nav-icon"><i class="ri-draft-line"></i></span>
-            <span class="app-nav-text">Purchase Request</span>
+            <span class="app-nav-text">
+                <span class="app-nav-text-short">RFQ</span>
+                <span class="app-nav-text-full">RFQ</span>
+            </span>
         </button>
 
-        @if(in_array(($currentUser?->normalizedRole() ?? 'staff'), ['superadmin', 'admin'], true))
-            <button type="button" data-route="purchase-orders" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('purchase-orders*') ? 'app-nav-active' : '' }}"
-                onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/purchase-orders')">
-                <span class="app-nav-icon"><i class="ri-survey-line"></i></span>
-                <span class="app-nav-text">Purchase Orders</span>
-            </button>
-        @endif
 
-        @if(($currentUser?->normalizedRole() ?? 'staff') === 'superadmin')
+
+        @if(($currentUser?->normalizedRole() ?? 'client') === 'superadmin')
             <button type="button" data-route="admin/staff" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('admin/staff*') ? 'app-nav-active' : '' }}"
                 onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/admin/staff')">
                 <span class="app-nav-icon"><i class="ri-team-line"></i></span>
-                <span class="app-nav-text">Staff</span>
+                <span class="app-nav-text">
+                    <span class="app-nav-text-short">Stf.</span>
+                    <span class="app-nav-text-full">Staff</span>
+                </span>
             </button>
         @endif
 
         <button type="button" data-route="projects" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('projects*') || request()->is('pricing*') ? 'app-nav-active' : '' }}"
             onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/projects')">
             <span class="app-nav-icon">◎</span>
-            <span class="app-nav-text">Projects &amp; Pricing</span>
+            <span class="app-nav-text">
+                <span class="app-nav-text-short">Proj.</span>
+                <span class="app-nav-text-full">Projects &amp; Pricing</span>
+            </span>
         </button>
 
-        <button type="button" data-route="suppliers" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('suppliers*') ? 'app-nav-active' : '' }}"
-            onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/suppliers')">
-            <span class="app-nav-icon">◈</span>
-            <span class="app-nav-text">Suppliers</span>
-        </button>
+        @if(in_array(($currentUser?->normalizedRole() ?? 'client'), ['superadmin', 'admin'], true))
+            <button type="button" data-route="suppliers" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('suppliers*') ? 'app-nav-active' : '' }}"
+                onclick="custom_nav_click(this, 'nav-btn', 'app-nav-active', '/suppliers')">
+                <span class="app-nav-icon">◈</span>
+                <span class="app-nav-text">
+                    <span class="app-nav-text-short">Supp.</span>
+                    <span class="app-nav-text-full">Suppliers</span>
+                </span>
+            </button>
+        @endif
 
         </div>
 
@@ -152,3 +169,4 @@
 
 </body>
 </html>
+

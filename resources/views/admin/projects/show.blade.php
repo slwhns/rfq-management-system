@@ -30,15 +30,15 @@
 
     <div class="card shadow-sm border-0">
         <div class="card-body">
-            <h5 class="mb-3">Assigned Components</h5>
+            <h5 class="mb-3">Assigned Items</h5>
             @if ($project->components->isEmpty())
-                <p class="text-muted mb-0">No components assigned yet.</p>
+                <p class="text-muted mb-0">No items assigned yet.</p>
             @else
                 <div class="table-responsive">
                     <table class="table table-sm align-middle mb-0">
                         <thead>
                             <tr>
-                                <th>Code</th>
+                                <th>SKU</th>
                                 <th>Name</th>
                                 <th>Quantity</th>
                             </tr>
@@ -59,3 +59,4 @@
     </div>
 </div>
 @endsection
+

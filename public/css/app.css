@@ -1195,16 +1195,27 @@ body.app-theme {
     color: #7183a1;
     font-size: 12px;
     margin: 14px 6px 8px;
-    opacity: 0;
-    max-height: 0;
+    opacity: 1;
+    max-height: 32px;
     overflow: hidden;
     white-space: nowrap;
     transition: opacity 0.15s ease;
 }
 
-.app-sidebar:hover .app-nav-group-label {
-    opacity: 1;
-    max-height: 32px;
+.app-nav-group-label-short {
+    display: inline;
+}
+
+.app-nav-group-label-full {
+    display: none;
+}
+
+.app-sidebar:hover .app-nav-group-label-short {
+    display: none;
+}
+
+.app-sidebar:hover .app-nav-group-label-full {
+    display: inline;
 }
 
 .app-sidebar .nav-btn {
@@ -1239,15 +1250,33 @@ body.app-theme {
 .app-nav-text {
     flex: 1;
     white-space: nowrap;
-    opacity: 0;
-    max-width: 0;
+    opacity: 1;
+    max-width: 46px;
     overflow: hidden;
     transition: opacity 0.15s ease;
+    font-size: 11px;
+}
+
+.app-nav-text-short {
+    display: inline;
+}
+
+.app-nav-text-full {
+    display: none;
 }
 
 .app-sidebar:hover .app-nav-text {
     opacity: 1;
     max-width: 150px;
+    font-size: 14px;
+}
+
+.app-sidebar:hover .app-nav-text-short {
+    display: none;
+}
+
+.app-sidebar:hover .app-nav-text-full {
+    display: inline;
 }
 
 .app-sidebar .nav-btn:hover {

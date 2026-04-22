@@ -15,8 +15,15 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseOrderController extends Controller
 {
+    private function abortSupplierPoDisabled(): void
+    {
+        abort(403, 'Supplier PO flow is currently disabled. Focus is on client RFQ and quotation flow.');
+    }
+
     public function index(Request $request)
     {
+        $this->abortSupplierPoDisabled();
+
         $currentUser = $request->user();
         $role = $currentUser?->normalizedRole();
 
@@ -31,16 +38,18 @@ class PurchaseOrderController extends Controller
 
     public function create(Request $request, Quote $quote)
     {
+        $this->abortSupplierPoDisabled();
+
         $quote->load(['project', 'items.component']);
 
         $currentUser = $request->user();
         $role = $currentUser?->normalizedRole();
 
         abort_unless(in_array($role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true), 403);
-        abort_unless(Quote::normalizeStatus($quote->status) === Quote::STATUS_APPROVED, 422, 'Purchase Order can only be created from an approved Purchase Request.');
+        abort_unless(Quote::normalizeStatus($quote->status) === Quote::STATUS_APPROVED, 422, 'Purchase Order can only be created from an approved RFQ.');
 
         $sections = $this->buildCompanySections($quote);
-        abort_if($sections->isEmpty(), 422, 'No supplier section is available for this Purchase Request.');
+        abort_if($sections->isEmpty(), 422, 'No supplier section is available for this RFQ.');
 
         // Create POs for all company sections
         foreach ($sections as $section) {
@@ -67,6 +76,8 @@ class PurchaseOrderController extends Controller
 
     public function show(Request $request, PurchaseOrder $purchaseOrder)
     {
+        $this->abortSupplierPoDisabled();
+
         $currentUser = $request->user();
         $role = $currentUser?->normalizedRole();
 
@@ -83,7 +94,7 @@ class PurchaseOrderController extends Controller
             $storedDiscount = round((float) ($item->discount_percent ?? 0), 2);
             $fallbackDiscount = round((float) ($quoteDiscountByComponent->get($item->component_id) ?? 0), 2);
 
-            // Prefer stored PO discount; fallback to PR discount to keep old POs aligned.
+            // Prefer stored PO discount; fallback to RFQ discount to keep old POs aligned.
             $item->discount_percent = $storedDiscount > 0 ? $storedDiscount : $fallbackDiscount;
 
             return $item;

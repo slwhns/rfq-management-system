@@ -7,23 +7,23 @@
 
 <div class="d-grid gap-20 mg-b-20" style="grid-template-columns: 280px 1fr;">
     <button type="button" class="bg-blue clr-white pd-10 br-5 cursor-pointer" style="border: 0;" onclick="openAddCategoryModal()">+ Add Category</button>
-    <button type="button" class="bg-blue clr-white pd-10 br-5 cursor-pointer" style="border: 0;" onclick="openAddComponentModal()">+ Add Component</button>
+    <button type="button" class="bg-blue clr-white pd-10 br-5 cursor-pointer" style="border: 0;" onclick="openAddComponentModal()">+ Add Item</button>
 </div>
 
 <div class="d-grid gap-20" style="grid-template-columns: 280px 1fr;">
 
     <div class="bg-white5 pd-20 br-10 box-shadow-basic h-mc">
         <div class="fw-bold mg-b-10">Categories</div>
-        <div class="fs-12 clr-grey1 mg-b-10">Select a category to view all components.</div>
+        <div class="fs-12 clr-grey1 mg-b-10">Select a category to view all items.</div>
         <ul id="categories" class="list-style-none pd-0 mg-0"></ul>
     </div>
 
     <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="fw-bold mg-b-10">Components</div>
+        <div class="fw-bold mg-b-10">Items</div>
 
         <div class="bg-white5 br-10 of-hidden">
             <div class="pd-10 bdr-bottom-22 fw-bold clr-grey1">
-                Component Details
+                Item Details
             </div>
 
             <div id="components" data-mode="items"></div>
@@ -65,11 +65,11 @@
     </div>
 </div>
 
-<!-- Add/Edit Component Modal (Step-based) -->
+<!-- Add/Edit Item Modal (Step-based) -->
 <div id="component-modal" class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 id="component-modal-title">Add Component</h3>
+            <h3 id="component-modal-title">Add Item</h3>
             <button class="modal-close" onclick="closeAllModals()">×</button>
         </div>
         <div class="modal-body">
@@ -88,16 +88,16 @@
                 </div>
             </div>
 
-            <!-- Step 2: Component Details -->
+            <!-- Step 2: Item Details -->
             <div id="component-modal-step2" class="d-grid gap-15" style="display: none;">
                 <div class="d-grid gap-30" style="grid-template-columns: 1fr 1fr;">
                     <div>
-                        <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-component-name">Component Name *</label>
+                        <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-component-name">Item Name *</label>
                         <input id="modal-component-name" class="pd-10 bdr-all-22 br-5 w-100" type="text" placeholder="Name">
                     </div>
                     <div>
-                        <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-component-code">Code *</label>
-                        <input id="modal-component-code" class="pd-10 bdr-all-22 br-5 w-100" type="text" placeholder="Code">
+                        <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-component-code">SKU *</label>
+                        <input id="modal-component-code" class="pd-10 bdr-all-22 br-5 w-100" type="text" placeholder="SKU">
                     </div>
                 </div>
                 <div class="d-grid gap-30" style="grid-template-columns: 1fr 1fr;">
@@ -123,7 +123,7 @@
                 <div class="d-grid gap-15" style="grid-template-columns: 1fr 1fr;">
                     <label class="d-flex ai-center pd-10 bdr-all-22 br-5 cursor-pointer">
                         <input id="modal-component-is-smart" type="checkbox" class="mg-r-8">
-                        <span class="fs-12">Smart Component</span>
+                        <span class="fs-12">Smart Item</span>
                     </label>
                     <label class="d-flex ai-center pd-10 bdr-all-22 br-5 cursor-pointer">
                         <input id="modal-component-requires-license" type="checkbox" class="mg-r-8">
@@ -208,3 +208,4 @@
 </div>
 
 @endsection
+

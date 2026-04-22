@@ -13,14 +13,15 @@ class User extends Authenticatable
 
     public const ROLE_SUPERADMIN = 'superadmin';
     public const ROLE_ADMIN = 'admin';
-    public const ROLE_STAFF = 'staff';
+    public const ROLE_CLIENT = 'client';
+    public const ROLE_STAFF = 'staff'; // Legacy alias maintained for backward compatibility.
 
     public const ROLE_MAP = [
-        'client' => self::ROLE_STAFF,
-        'qs' => self::ROLE_STAFF,
+        self::ROLE_CLIENT => self::ROLE_CLIENT,
+        'qs' => self::ROLE_CLIENT,
         self::ROLE_SUPERADMIN => self::ROLE_SUPERADMIN,
         self::ROLE_ADMIN => self::ROLE_ADMIN,
-        self::ROLE_STAFF => self::ROLE_STAFF,
+        self::ROLE_STAFF => self::ROLE_CLIENT,
     ];
 
     /**
@@ -33,6 +34,7 @@ class User extends Authenticatable
         'email',
         'password',
         'company_name',
+        'address',
         'role',
         'phone_number',
         'department',
@@ -61,7 +63,7 @@ class User extends Authenticatable
 
     public function normalizedRole(): string
     {
-        return self::ROLE_MAP[$this->role] ?? self::ROLE_STAFF;
+        return self::ROLE_MAP[$this->role] ?? self::ROLE_CLIENT;
     }
 
     public function hasRole(string $role): bool

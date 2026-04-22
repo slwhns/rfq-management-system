@@ -42,3 +42,4 @@ Route::patch('/project-components/{id}', [ProjectController::class, 'updateCompo
 Route::delete('/project-components/{id}', [ProjectController::class, 'destroyComponent']);
 
 Route::get('/quotes', [QuoteController::class, 'index']);
+Route::get('/rfqs', [QuoteController::class, 'index']);

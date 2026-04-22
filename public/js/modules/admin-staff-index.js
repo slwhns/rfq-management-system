@@ -27,6 +27,7 @@ export function initAdminStaffIndex() {
     const oldEmail = page.dataset.oldEmail || '';
     const oldRole = page.dataset.oldRole || '';
     const oldCompany = page.dataset.oldCompany || '';
+    const oldPhone = page.dataset.oldPhone || '';
     const oldUsername = page.dataset.oldUsername || '';
     const validationMessages = parseJson(page.dataset.errors, []);
 
@@ -40,6 +41,7 @@ export function initAdminStaffIndex() {
 
     const nameInput = document.getElementById('staff-modal-name');
     const emailInput = document.getElementById('staff-modal-email');
+    const phoneInput = document.getElementById('staff-modal-phone');
     const roleInput = document.getElementById('staff-modal-role');
     const companyInput = document.getElementById('staff-modal-company');
     const passwordInput = document.getElementById('staff-modal-password');
@@ -71,7 +73,10 @@ export function initAdminStaffIndex() {
 
         nameInput.value = '';
         emailInput.value = '';
-        roleInput.value = 'staff';
+        if (phoneInput) {
+            phoneInput.value = '';
+        }
+        roleInput.value = 'client';
         companyInput.value = '';
         passwordInput.value = '';
         passwordInput.required = true;
@@ -100,7 +105,10 @@ export function initAdminStaffIndex() {
 
         nameInput.value = button.dataset.name || '';
         emailInput.value = button.dataset.email || '';
-        roleInput.value = button.dataset.role || 'staff';
+        if (phoneInput) {
+            phoneInput.value = button.dataset.phone || '';
+        }
+        roleInput.value = button.dataset.role || 'client';
         companyInput.value = button.dataset.company || '';
         passwordInput.value = '';
         passwordInput.required = false;
@@ -155,7 +163,10 @@ export function initAdminStaffIndex() {
 
         nameInput.value = oldName || '';
         emailInput.value = oldEmail || '';
-        roleInput.value = oldRole || 'staff';
+        if (phoneInput) {
+            phoneInput.value = oldPhone || '';
+        }
+        roleInput.value = oldRole || 'client';
         companyInput.value = oldCompany || '';
         if (usernameInput) {
             usernameInput.value = oldUsername || '';

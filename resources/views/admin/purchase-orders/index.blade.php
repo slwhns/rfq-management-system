@@ -20,7 +20,7 @@
         <div class="pd-20 br-10" style="border:1px dashed #c7d4f3; background:#f7faff;">
             <div class="fw-bold mg-b-8">No PO created yet</div>
             <div class="fs-13 clr-grey1">
-                Approve a PR, open it, and click Create PO. The record will appear here.
+                Approve an RFQ, open it, and click Create PO. The record will appear here.
             </div>
         </div>
     @else
@@ -29,7 +29,7 @@
                 <thead>
                     <tr style="border-bottom:1px solid #d8d8d8;">
                         <th style="text-align:left; padding:12px 8px;">PO</th>
-                        <th style="text-align:left; padding:12px 8px;">PR</th>
+                        <th style="text-align:left; padding:12px 8px;">RFQ</th>
                         <th style="text-align:left; padding:12px 8px;">Project</th>
                         <th style="text-align:left; padding:12px 8px;">Company</th>
                         <th style="text-align:right; padding:12px 8px;">Total</th>
@@ -62,3 +62,4 @@
     @endif
 </div>
 @endsection
+

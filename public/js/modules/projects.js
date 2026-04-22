@@ -134,7 +134,7 @@ function openEditProjectComponentModal(projectComponent, projectId) {
     const overlay = document.getElementById('modal-overlay');
     const modal = document.getElementById('project-component-modal');
 
-    if (!quantityInput || !discountSelect || !nameLabel || !codeLabel || !overlay || !modal) {
+    if (!quantityInput || !nameLabel || !codeLabel || !overlay || !modal) {
         return;
     }
 
@@ -149,7 +149,9 @@ function openEditProjectComponentModal(projectComponent, projectId) {
     nameLabel.textContent = component.component_name || '-';
     codeLabel.textContent = component.component_code || '-';
     quantityInput.value = String(Number(projectComponent.quantity || 1));
-    discountSelect.value = String(projectComponentModalState.discountPercent);
+    if (discountSelect) {
+        discountSelect.value = String(projectComponentModalState.discountPercent);
+    }
 
     if (typeof globalThis.closeAllModals === 'function') {
         globalThis.closeAllModals();
@@ -166,7 +168,7 @@ async function submitProjectComponentModal() {
     const projectId = projectComponentModalState.projectId;
     const currentPrice = projectComponentModalState.currentPrice;
 
-    if (!quantityInput || !discountSelect || !projectComponentId || !projectId) {
+    if (!quantityInput || !projectComponentId || !projectId) {
         return;
     }
 
@@ -176,8 +178,11 @@ async function submitProjectComponentModal() {
         return;
     }
 
-    const discountPercent = Number(discountSelect.value || 0);
-    if (![0, 5, 10, 15].includes(discountPercent)) {
+    const discountPercent = discountSelect
+        ? Number(discountSelect.value || 0)
+        : Number(projectComponentModalState.discountPercent || 0);
+
+    if (discountSelect && ![0, 5, 10, 15].includes(discountPercent)) {
         globalThis.show_popup_temp('error', 'Validation Error', ['Discount level must be 0%, 5%, 10%, or 15%']);
         return;
     }
@@ -189,7 +194,7 @@ async function submitProjectComponentModal() {
             discount_percent: discountPercent,
         });
 
-        globalThis.show_popup_temp('success', 'Success', ['Project component updated']);
+        globalThis.show_popup_temp('success', 'Success', ['Project item updated']);
         if (typeof globalThis.closeAllModals === 'function') {
             globalThis.closeAllModals();
         }
@@ -199,24 +204,24 @@ async function submitProjectComponentModal() {
         await globalThis.refreshPricingSelectedComponents?.(projectId);
     } catch (error) {
         console.error(error);
-        globalThis.show_popup_temp('error', 'Error', [error.message || 'Failed to update project component']);
+        globalThis.show_popup_temp('error', 'Error', [error.message || 'Failed to update project item']);
     }
 }
 
 async function deleteProjectComponent(projectComponentId, projectId) {
-    const confirmed = globalThis.confirm('Delete this component from the project?');
+    const confirmed = globalThis.confirm('Delete this item from the project?');
     if (!confirmed) {
         return;
     }
 
     try {
         await api_request(`/api/project-components/${projectComponentId}`, 'DELETE');
-        globalThis.show_popup_temp('success', 'Success', ['Project component deleted']);
+        globalThis.show_popup_temp('success', 'Success', ['Project item deleted']);
         await loadProjects();
         await globalThis.refreshPricingSelectedComponents?.(projectId);
     } catch (error) {
         console.error(error);
-        globalThis.show_popup_temp('error', 'Error', [error.message || 'Failed to delete project component']);
+        globalThis.show_popup_temp('error', 'Error', [error.message || 'Failed to delete project item']);
     }
 }
 
@@ -233,7 +238,7 @@ function renderSelectedProjectComponents(project) {
             nameBadge.textContent = 'No project selected';
         }
 
-        container.innerHTML = '<div class="pd-10 clr-grey1">Select a project to view components.</div>';
+        container.innerHTML = '<div class="pd-10 clr-grey1">Select a project to view items.</div>';
         return;
     }
 
@@ -244,7 +249,7 @@ function renderSelectedProjectComponents(project) {
     const components = sortByKey(Array.isArray(project.components) ? project.components : [], (projectComponent) => projectComponent?.component?.component_name);
 
     if (components.length === 0) {
-        container.innerHTML = '<div class="pd-10 clr-grey1">No components added for this project.</div>';
+        container.innerHTML = '<div class="pd-10 clr-grey1">No items added for this project.</div>';
         return;
     }
 
@@ -252,12 +257,8 @@ function renderSelectedProjectComponents(project) {
 
     components.forEach((projectComponent) => {
         const component = projectComponent.component || {};
-        const notes = parseProjectComponentNotes(projectComponent);
         const quantity = Number(projectComponent.quantity || 0);
         const unitPrice = Number(projectComponent.custom_price ?? component.base_price ?? 0);
-        const discountPercent = Number(notes?.discount_percent || 0);
-        const lineSubtotal = quantity * unitPrice;
-        const discountAmount = lineSubtotal * (discountPercent / 100);
         const lineTotal = quantity * unitPrice;
         const currency = component.currency || 'RM';
 
@@ -267,19 +268,17 @@ function renderSelectedProjectComponents(project) {
             <div class="d-flex jc-between ai-start mg-b-2">
                 <div>
                     <div class="fw-bold">${component.component_name || '-'}</div>
-                    <div class="fs-12 clr-grey1">Code: ${component.component_code || '-'}</div>
+                    <div class="fs-12 clr-grey1">SKU: ${component.component_code || '-'}</div>
                 </div>
                 <div class="d-flex fd-column" style="row-gap: 2px;">
-                    <button type="button" class="btn-icon" title="Edit Component" data-edit-project-component-id="${projectComponent.id}"><i class="ri-edit-box-line"></i></button>
-                    <button type="button" class="btn-icon" title="Delete Component" data-delete-project-component-id="${projectComponent.id}"><i class="ri-delete-bin-5-line"></i></button>
+                    <button type="button" class="btn-icon" title="Edit Item" data-edit-project-component-id="${projectComponent.id}"><i class="ri-edit-box-line"></i></button>
+                    <button type="button" class="btn-icon" title="Delete Item" data-delete-project-component-id="${projectComponent.id}"><i class="ri-delete-bin-5-line"></i></button>
                 </div>
             </div>
-            <div class="d-grid gap-10 fs-12" style="grid-template-columns: repeat(5, minmax(120px, 1fr));">
+            <div class="d-grid gap-10 fs-12" style="grid-template-columns: repeat(3, minmax(120px, 1fr));">
                 <div><span class="clr-grey1">Qty:</span> ${quantity}</div>
                 <div><span class="clr-grey1">Unit Price:</span> ${formatCurrency(unitPrice, currency)}</div>
-                <div><span class="clr-grey1">Total Before Discount:</span> ${formatCurrency(lineSubtotal, currency)}</div>
-                <div><span class="clr-grey1">Discount:</span> ${discountPercent}% (${formatCurrency(discountAmount, currency)})</div>
-                <div><span class="clr-grey1">Total:</span> ${formatCurrency(lineTotal - discountAmount, currency)}</div>
+                <div><span class="clr-grey1">Total:</span> ${formatCurrency(lineTotal, currency)}</div>
             </div>
         `;
 
@@ -458,7 +457,7 @@ function renderProjectList(list, projects) {
                     </div>
                 </div>
                 <div class="d-flex ai-center">
-                    <div class="fs-12 ${subtitleClass}">${componentCount} components</div>
+                    <div class="fs-12 ${subtitleClass}">${componentCount} items</div>
                     ${actions}
                 </div>
             </div>

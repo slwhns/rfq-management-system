@@ -39,7 +39,7 @@
         </div>
         <div class="fs-12 clr-grey1 mg-b-10" id="supplier-items-description">Select a company to view all assigned items.</div>
         <div class="d-grid gap-25 mg-b-10" style="grid-template-columns: 1.2fr 1fr auto;">
-            <input id="supplier-item-search" class="pd-10 bdr-all-22 br-20 w-100" type="text" placeholder="Search item by name, code, description, unit, price, subscription...">
+            <input id="supplier-item-search" class="pd-10 bdr-all-22 br-20 w-100" type="text" placeholder="Search item by name, SKU, description, unit, price, subscription...">
             <select id="supplier-item-filter-category" class="pd-10 bdr-all-22 br-5 w-100">
                 <option value="">All Categories</option>
             </select>
@@ -108,27 +108,27 @@
 
                 <div id="supplier-item-component-group">
                     <div class="d-flex jc-between ai-center mg-b-5">
-                        <label class="fs-12 fw-bold d-block" for="supplier-item-component-id">Component *</label>
-                        <button type="button" id="supplier-item-edit-component-btn" class="btn-icon" title="Edit Component"><i class="ri-edit-box-line"></i></button>
+                        <label class="fs-12 fw-bold d-block" for="supplier-item-component-id">Item *</label>
+                        <button type="button" id="supplier-item-edit-component-btn" class="btn-icon" title="Edit Item"><i class="ri-edit-box-line"></i></button>
                     </div>
                     <select id="supplier-item-component-id" class="pd-10 bdr-all-22 br-5 w-100"></select>
-                    <div class="fs-12 clr-grey1 mg-t-5">If component is not listed, fill Code and Name below then click New Component.</div>
+                    <div class="fs-12 clr-grey1 mg-t-5">If item is not listed, fill SKU and Name below then click New Item.</div>
                 </div>
 
                 <div class="d-grid gap-30" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
                     <div>
                         <div class="d-flex jc-between ai-center mg-b-5">
-                            <label class="fs-12 fw-bold d-block" for="supplier-item-code">Component Code</label>
+                            <label class="fs-12 fw-bold d-block" for="supplier-item-code">SKU</label>
                             <button type="button" class="btn-icon" aria-hidden="true" tabindex="-1" style="visibility: hidden;"><i class="ri-add-circle-line"></i></button>
                         </div>
-                        <input id="supplier-item-code" class="pd-10 bdr-all-22 br-5 w-100" type="text" maxlength="100" placeholder="Enter component code">
+                        <input id="supplier-item-code" class="pd-10 bdr-all-22 br-5 w-100" type="text" maxlength="100" placeholder="Enter SKU">
                     </div>
                     <div>
                         <div class="d-flex jc-between ai-center mg-b-5">
-                            <label class="fs-12 fw-bold d-block" for="supplier-item-name">Component Name</label>
-                            <button type="button" id="supplier-item-create-component-btn" class="btn-icon" title="Create New Component"><i class="ri-add-circle-line"></i></button>
+                            <label class="fs-12 fw-bold d-block" for="supplier-item-name">Item Name</label>
+                            <button type="button" id="supplier-item-create-component-btn" class="btn-icon" title="Create New Item"><i class="ri-add-circle-line"></i></button>
                         </div>
-                        <input id="supplier-item-name" class="pd-10 bdr-all-22 br-5 w-100" type="text" maxlength="255" placeholder="Enter component name">
+                        <input id="supplier-item-name" class="pd-10 bdr-all-22 br-5 w-100" type="text" maxlength="255" placeholder="Enter item name">
                     </div>
                 </div>
 
@@ -177,7 +177,7 @@
                 <div class="d-grid gap-10" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
                     <label class="d-flex ai-center gap-8 fs-12">
                         <input id="supplier-item-is-smart" type="checkbox">
-                        Smart Component
+                        Smart Item
                     </label>
                     <label class="d-flex ai-center gap-8 fs-12">
                         <input id="supplier-item-requires-license" type="checkbox">
@@ -229,3 +229,4 @@
 </div>
 
 @endsection
+

@@ -65,11 +65,32 @@
             return;
         }
 
+        if (form.dataset.profileBound === 'true') {
+            return;
+        }
+        form.dataset.profileBound = 'true';
+
         form.addEventListener('submit', submitProfileEditForm);
+
+        const passwordToggle = form.querySelector('[data-profile-password-toggle]');
+        if (passwordToggle) {
+            passwordToggle.addEventListener('change', () => {
+                const showPasswords = Boolean(passwordToggle.checked);
+                const passwordInputs = form.querySelectorAll('[data-profile-password-input]');
+                passwordInputs.forEach((input) => {
+                    input.type = showPasswords ? 'text' : 'password';
+                });
+            });
+        }
+    }
+
+    function initProfilePage() {
+        bindProfileModalEvents();
     }
 
     globalThis.openProfileEditModal = openProfileEditModal;
     globalThis.closeProfileEditModal = closeProfileEditModal;
+    globalThis.initProfilePage = initProfilePage;
 
-    document.addEventListener('DOMContentLoaded', bindProfileModalEvents);
+    document.addEventListener('DOMContentLoaded', initProfilePage);
 })();

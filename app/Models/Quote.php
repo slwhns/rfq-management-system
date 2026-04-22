@@ -12,16 +12,14 @@ class Quote extends Model
     protected $table = 'purchase_requests';
 
     public const STATUS_DRAFT = 'draft';
-    public const STATUS_IN_PROGRESS = 'in_progress';
-    public const STATUS_NEGOTIATION = 'negotiation';
+    public const STATUS_SENT = 'sent';
     public const STATUS_APPROVED = 'approved';
     public const STATUS_DECLINED = 'declined';
     public const STATUS_CANCELLED = 'cancelled';
 
     public const STATUSES = [
         self::STATUS_DRAFT,
-        self::STATUS_IN_PROGRESS,
-        self::STATUS_NEGOTIATION,
+        self::STATUS_SENT,
         self::STATUS_APPROVED,
         self::STATUS_DECLINED,
         self::STATUS_CANCELLED,
@@ -29,21 +27,17 @@ class Quote extends Model
 
     public const STAFF_MUTABLE_STATUSES = [
         self::STATUS_DRAFT,
-        self::STATUS_IN_PROGRESS,
         self::STATUS_CANCELLED,
     ];
 
     public const ADMIN_MUTABLE_STATUSES = [
-        self::STATUS_NEGOTIATION,
-        self::STATUS_APPROVED,
-        self::STATUS_DECLINED,
+        self::STATUS_SENT,
         self::STATUS_CANCELLED,
     ];
 
     public const ADMIN_VISIBLE_STATUSES = [
         self::STATUS_DRAFT,
-        self::STATUS_IN_PROGRESS,
-        self::STATUS_NEGOTIATION,
+        self::STATUS_SENT,
         self::STATUS_APPROVED,
         self::STATUS_DECLINED,
         self::STATUS_CANCELLED,
@@ -53,25 +47,25 @@ class Quote extends Model
 
     public const STATUS_LABELS = [
         self::STATUS_DRAFT => 'Draft',
-        self::STATUS_IN_PROGRESS => 'In Progress',
-        self::STATUS_NEGOTIATION => 'Negotiation',
+        self::STATUS_SENT => 'Awaiting Review',
         self::STATUS_APPROVED => 'Approved',
-        self::STATUS_DECLINED => 'Declined',
+        self::STATUS_DECLINED => 'Rejected',
         self::STATUS_CANCELLED => 'Cancelled',
     ];
 
     public const STATUS_BADGE_STYLES = [
         self::STATUS_DRAFT => ['background' => '#eff1f7', 'color' => '#4a5470', 'border' => '#dbe0ee'],
-        self::STATUS_IN_PROGRESS => ['background' => '#eef3ff', 'color' => '#2f55c7', 'border' => '#cbd8ff'],
-        self::STATUS_NEGOTIATION => ['background' => '#fff7e8', 'color' => '#aa6a00', 'border' => '#ffe0a6'],
+        self::STATUS_SENT => ['background' => '#fff7d6', 'color' => '#9a6a00', 'border' => '#ffe08a'],
         self::STATUS_APPROVED => ['background' => '#eafaf0', 'color' => '#1f8a4c', 'border' => '#bdeacb'],
         self::STATUS_DECLINED => ['background' => '#ffefef', 'color' => '#bf2f2f', 'border' => '#f9c8c8'],
         self::STATUS_CANCELLED => ['background' => '#f5f5f5', 'color' => '#616161', 'border' => '#dddddd'],
     ];
 
     public const LEGACY_STATUS_MAP = [
-        'sent' => self::STATUS_IN_PROGRESS,
-        'viewed' => self::STATUS_IN_PROGRESS,
+        'in_progress' => self::STATUS_SENT,
+        'negotiation' => self::STATUS_SENT,
+        'viewed' => self::STATUS_SENT,
+        'sent' => self::STATUS_SENT,
         'accepted' => self::STATUS_APPROVED,
         'rejected' => self::STATUS_DECLINED,
         'expired' => self::STATUS_CANCELLED,
@@ -96,6 +90,9 @@ class Quote extends Model
         'admin_notes_updated_by',
         'staff_response',
         'staff_response_updated_by',
+        'quotation_sent_at',
+        'client_decision_note',
+        'client_decision_at',
     ];
 
     protected $casts = [
@@ -103,6 +100,8 @@ class Quote extends Model
         'admin_notes_updated_at' => 'datetime',
         'staff_response_updated_at' => 'datetime',
         'date_requested' => 'datetime',
+        'quotation_sent_at' => 'datetime',
+        'client_decision_at' => 'datetime',
     ];
 
     public function project()

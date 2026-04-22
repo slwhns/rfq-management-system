@@ -4,7 +4,6 @@
 @php
     $user = auth()->user();
     $displayName = strtoupper((string) ($user?->name ?? 'USER'));
-    $displayRole = ucfirst($user?->normalizedRole() ?? 'staff');
     $avatarInitial = strtoupper(substr((string) ($user?->name ?? 'U'), 0, 1));
     $profilePhotoUrl = $user?->profile_photo_path ? \Illuminate\Support\Facades\Storage::url($user->profile_photo_path) : null;
     $employeeId = 'QS-' . str_pad((string) ($user?->id ?? 0), 4, '0', STR_PAD_LEFT);
@@ -30,10 +29,9 @@
 
         <div class="profile-main">
             <h2 class="profile-name">{{ $displayName }}</h2>
-            <span class="profile-badge">{{ $displayRole }}</span>
 
             <div class="profile-grid">
-                <div class="profile-label">Employee ID</div>
+                <div class="profile-label">Staff ID</div>
                 <div class="profile-value">{{ $employeeId }}</div>
 
                 <div class="profile-label">Email</div>
@@ -45,14 +43,11 @@
                 <div class="profile-label">Phone Number</div>
                 <div class="profile-value">{{ $user?->phone_number ?? '-' }}</div>
 
-                <div class="profile-label">Department</div>
-                <div class="profile-value">{{ $user?->department ?? '-' }}</div>
-
                 <div class="profile-label">Company</div>
                 <div class="profile-value">{{ $user?->company_name ?? 'QS Smart Data Center' }}</div>
 
-                <div class="profile-label">Role</div>
-                <div class="profile-value">{{ $displayRole }}</div>
+                <div class="profile-label">Address</div>
+                <div class="profile-value">{{ $user?->address ?? '-' }}</div>
             </div>
 
             <div class="profile-actions">
@@ -93,19 +88,45 @@
                 </div>
 
                 <div>
-                    <label for="profile-edit-department" class="fs-12 fw-bold mg-b-5 d-block">Department (Optional)</label>
-                    <input id="profile-edit-department" type="text" name="department" class="pd-10 bdr-all-22 br-5 w-100" value="{{ $user?->department ?? '' }}">
+                    <label for="profile-edit-company" class="fs-12 fw-bold mg-b-5 d-block">Company Name</label>
+                    <input id="profile-edit-company" type="text" name="company_name" class="pd-10 bdr-all-22 br-5 w-100" value="{{ $user?->company_name ?? '' }}">
                 </div>
 
                 <div>
-                    <label for="profile-edit-company" class="fs-12 fw-bold mg-b-5 d-block">Company Name</label>
-                    <input id="profile-edit-company" type="text" name="company_name" class="pd-10 bdr-all-22 br-5 w-100" value="{{ $user?->company_name ?? '' }}">
+                    <label for="profile-edit-address" class="fs-12 fw-bold mg-b-5 d-block">Address (Optional)</label>
+                    <textarea id="profile-edit-address" name="address" class="pd-10 bdr-all-22 br-5 w-100" style="min-height:80px; resize:vertical;">{{ $user?->address ?? '' }}</textarea>
                 </div>
 
                 <div>
                     <label for="profile-edit-photo" class="fs-12 fw-bold mg-b-5 d-block">Profile Picture (Optional)</label>
                     <input id="profile-edit-photo" type="file" name="profile_photo" class="pd-10 bdr-all-22 br-5 w-100" accept="image/png,image/jpeg,image/webp">
                     <div class="fs-11 clr-grey1 mg-t-5">Allowed: JPG, PNG, WEBP. Max 2MB.</div>
+                </div>
+
+                <div class="pd-10 br-5" style="border:1px solid #e7eaf3; background:#f8faff; overflow:hidden;">
+                    <div class="fs-12 fw-bold mg-b-10">Change Password (Optional)</div>
+
+                    <div class="mg-b-10">
+                        <label for="profile-edit-current-password" class="fs-12 fw-bold mg-b-5 d-block">Current Password</label>
+                        <input id="profile-edit-current-password" type="password" name="current_password" class="pd-10 bdr-all-22 br-5 w-100" style="box-sizing:border-box; max-width:100%;" autocomplete="current-password" data-profile-password-input>
+                    </div>
+
+                    <div class="mg-b-10">
+                        <label for="profile-edit-new-password" class="fs-12 fw-bold mg-b-5 d-block">New Password</label>
+                        <input id="profile-edit-new-password" type="password" name="new_password" class="pd-10 bdr-all-22 br-5 w-100" style="box-sizing:border-box; max-width:100%;" autocomplete="new-password" data-profile-password-input>
+                    </div>
+
+                    <div>
+                        <label for="profile-edit-new-password-confirmation" class="fs-12 fw-bold mg-b-5 d-block">Confirm New Password</label>
+                        <input id="profile-edit-new-password-confirmation" type="password" name="new_password_confirmation" class="pd-10 bdr-all-22 br-5 w-100" style="box-sizing:border-box; max-width:100%;" autocomplete="new-password" data-profile-password-input>
+                    </div>
+
+                    <label class="d-flex ai-center gap-10 mg-t-10 fs-12 clr-grey1" style="cursor:pointer;">
+                        <input id="profile-edit-show-password" type="checkbox" data-profile-password-toggle>
+                        Show password fields
+                    </label>
+
+                    <div class="fs-11 clr-grey1 mg-t-8">Leave all password fields empty if you do not want to change your password. Minimum 8 characters.</div>
                 </div>
             </div>
         </div>
@@ -118,4 +139,5 @@
 </div>
 
 @endsection
+
 

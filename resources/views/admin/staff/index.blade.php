@@ -22,17 +22,18 @@
     data-old-email="{{ old('email') }}"
     data-old-role="{{ old('role') }}"
     data-old-company="{{ old('company_name') }}"
+    data-old-phone="{{ old('phone_number') }}"
     data-old-username="{{ old('username') }}"
     data-errors='@json($errors->all())'
 >
     <div class="bg-white5 pd-20 br-10 box-shadow-basic">
         <div class="d-flex jc-between ai-center mg-b-10" style="flex-wrap: wrap; gap: 10px;">
             <div>
-                <div class="fw-bold">Admin &amp; Staff Directory</div>
-                <div class="fs-12 clr-grey1">Manage admin and staff accounts that can access this system.</div>
+                <div class="fw-bold">Admin &amp; Client Directory</div>
+                <div class="fs-12 clr-grey1">Manage admin and client accounts that can access this system.</div>
             </div>
             <div class="d-flex ai-center" style="gap: 12px;">
-                <input id="staff-search" type="text" class="pd-8 bdr-all-22 br-5 fs-12" style="width: 240px;" placeholder="Search name, email, company...">
+                <input id="staff-search" type="text" class="pd-8 bdr-all-22 br-5 fs-12" style="width: 240px;" placeholder="Search name, email, phone, company...">
                 <button type="button" class="bg-blue clr-white pd-8 br-5 cursor-pointer fs-12" style="border:0;" onclick="openAddStaffModal()">+ Add User</button>
             </div>
         </div>
@@ -41,11 +42,14 @@
             <div class="pd-15 fs-12 clr-grey1">No users found.</div>
         @else
             <div class="of-auto" style="max-height: 470px; overflow-y: auto; overflow-x: auto;">
-                <table style="width:100%; border-collapse: collapse; min-width: 760px;">
+                <table style="width:100%; border-collapse: collapse; min-width: 900px;">
                     <thead>
                         <tr style="border-bottom:1px solid #d8d8d8;">
                             <th style="text-align:left; padding:12px 8px;">Name</th>
                             <th style="text-align:left; padding:12px 8px;">Email</th>
+                            @if($hasPhoneNumber)
+                                <th style="text-align:left; padding:12px 8px;">Phone Number</th>
+                            @endif
                             <th style="text-align:left; padding:12px 8px;">Role</th>
                             <th style="text-align:left; padding:12px 8px;">Company</th>
                             <th style="text-align:left; padding:12px 8px; width: 110px;">Actions</th>
@@ -53,9 +57,12 @@
                     </thead>
                     <tbody id="staff-table-body">
                         @foreach($staffUsers as $staff)
-                            <tr data-staff-row="true" data-search="{{ strtolower(trim($staff->name . ' ' . $staff->email . ' ' . $staff->role . ' ' . ($staff->company_name ?? ''))) }}" style="border-bottom:1px solid #ececec; vertical-align: middle;">
+                            <tr data-staff-row="true" data-search="{{ strtolower(trim($staff->name . ' ' . $staff->email . ' ' . ($staff->phone_number ?? '') . ' ' . $staff->role . ' ' . ($staff->company_name ?? ''))) }}" style="border-bottom:1px solid #ececec; vertical-align: middle;">
                                 <td style="padding:10px 8px;">{{ $staff->name }}</td>
                                 <td style="padding:10px 8px;">{{ $staff->email }}</td>
+                                @if($hasPhoneNumber)
+                                    <td style="padding:10px 8px;">{{ $staff->phone_number ?: '-' }}</td>
+                                @endif
                                 <td style="padding:10px 8px; text-transform:capitalize;">{{ $staff->role }}</td>
                                 <td style="padding:10px 8px;">{{ $staff->company_name ?: '-' }}</td>
                                 <td style="padding:10px 8px;">
@@ -63,13 +70,14 @@
                                         <button
                                             type="button"
                                             class="btn-icon"
-                                            title="Edit Staff"
-                                            aria-label="Edit Staff"
+                                            title="Edit User"
+                                            aria-label="Edit User"
                                             data-id="{{ $staff->id }}"
                                             data-name="{{ $staff->name }}"
                                             data-email="{{ $staff->email }}"
                                             data-role="{{ $staff->role }}"
                                             data-company="{{ $staff->company_name }}"
+                                            data-phone="{{ $staff->phone_number }}"
                                             @if($hasUsername)
                                             data-username="{{ $staff->username }}"
                                             @endif
@@ -78,10 +86,10 @@
                                             <i class="ri-edit-line"></i>
                                         </button>
 
-                                        <form method="POST" action="{{ route('admin.staff.destroy', $staff->id) }}" onsubmit="return confirm('Delete this staff account?');" style="display:inline-flex;">
+                                        <form method="POST" action="{{ route('admin.staff.destroy', $staff->id) }}" onsubmit="return confirm('Delete this user account?');" style="display:inline-flex;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn-icon" title="Delete Staff" aria-label="Delete Staff" style="color:#bf2f2f;">
+                                            <button type="submit" class="btn-icon" title="Delete User" aria-label="Delete User" style="color:#bf2f2f;">
                                                 <i class="ri-delete-bin-line"></i>
                                             </button>
                                         </form>
@@ -93,7 +101,7 @@
                 </table>
             </div>
 
-            <div id="staff-search-empty" class="pd-15 fs-12 clr-grey1" style="display:none;">No matching staff found.</div>
+            <div id="staff-search-empty" class="pd-15 fs-12 clr-grey1" style="display:none;">No matching users found.</div>
 
             <div class="mg-t-15">
                 {{ $staffUsers->links('vendor.pagination.qs') }}
@@ -135,10 +143,17 @@
                         <input id="staff-modal-email" type="email" name="email" class="pd-10 bdr-all-22 br-5 w-100" required>
                     </div>
 
+                    @if($hasPhoneNumber)
+                        <div>
+                            <label for="staff-modal-phone" class="fs-12 fw-bold mg-b-5 d-block">Phone Number (Optional)</label>
+                            <input id="staff-modal-phone" type="text" name="phone_number" class="pd-10 bdr-all-22 br-5 w-100" maxlength="20">
+                        </div>
+                    @endif
+
                     <div>
                         <label for="staff-modal-role" class="fs-12 fw-bold mg-b-5 d-block">Role</label>
                         <select id="staff-modal-role" name="role" class="pd-10 bdr-all-22 br-5 w-100" required>
-                            <option value="staff">Staff</option>
+                            <option value="client">Client</option>
                             <option value="admin">Admin</option>
                         </select>
                     </div>
@@ -165,3 +180,4 @@
 </div>
 
 @endsection
+

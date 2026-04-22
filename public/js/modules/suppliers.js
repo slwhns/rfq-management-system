@@ -525,7 +525,7 @@ async function loadSupplierItemComponentsByCategory(categoryId, preferredCompone
     }
 
     if (!categoryId) {
-        componentSelect.innerHTML = '<option value="">No components found</option>';
+        componentSelect.innerHTML = '<option value="">No items found</option>';
         return;
     }
 
@@ -534,7 +534,7 @@ async function loadSupplierItemComponentsByCategory(categoryId, preferredCompone
     cachedSupplierItemComponents = components;
 
     if (components.length === 0) {
-        componentSelect.innerHTML = '<option value="">No components found</option>';
+        componentSelect.innerHTML = '<option value="">No items found</option>';
         return;
     }
 
@@ -606,7 +606,7 @@ async function createComponentFromSupplierItemForm() {
     const componentName = form.nameInput.value.trim();
 
     if (!componentCode || !componentName) {
-        globalThis.show_popup_temp('error', 'Validation Error', ['Component code and component name are required to create a new component']);
+        globalThis.show_popup_temp('error', 'Validation Error', ['SKU and item name are required to create a new item']);
         return null;
     }
 
@@ -635,11 +635,11 @@ async function createComponentFromSupplierItemForm() {
         const newComponent = response?.data || null;
         const newComponentId = Number(newComponent?.id || 0);
         await loadSupplierItemComponentsByCategory(categoryId, newComponentId || null);
-        globalThis.show_popup_temp('success', 'Success', ['Component created']);
+        globalThis.show_popup_temp('success', 'Success', ['Item created']);
         return newComponent;
     } catch (error) {
         console.error(error);
-        globalThis.show_popup_temp('error', 'Error', [error.message || 'Failed to create component']);
+        globalThis.show_popup_temp('error', 'Error', [error.message || 'Failed to create item']);
         return null;
     }
 }
@@ -647,7 +647,7 @@ async function createComponentFromSupplierItemForm() {
 async function editComponentFromSupplierItemForm() {
     const selectedComponent = getSelectedSupplierItemComponent();
     if (!selectedComponent) {
-        globalThis.show_popup_temp('error', 'Validation Error', ['Please select a component to edit']);
+        globalThis.show_popup_temp('error', 'Validation Error', ['Please select an item to edit']);
         return;
     }
 
@@ -659,7 +659,7 @@ async function editComponentFromSupplierItemForm() {
     const componentCode = form.codeInput.value.trim();
     const componentName = form.nameInput.value.trim();
     if (!componentCode || !componentName) {
-        globalThis.show_popup_temp('error', 'Validation Error', ['Component code and component name are required']);
+        globalThis.show_popup_temp('error', 'Validation Error', ['SKU and item name are required']);
         return;
     }
 
@@ -686,10 +686,10 @@ async function editComponentFromSupplierItemForm() {
 
         const categoryId = Number(getElement('supplier-item-category-id')?.value || 0);
         await loadSupplierItemComponentsByCategory(categoryId, selectedComponent.id);
-        globalThis.show_popup_temp('success', 'Success', ['Component updated']);
+        globalThis.show_popup_temp('success', 'Success', ['Item updated']);
     } catch (error) {
         console.error(error);
-        globalThis.show_popup_temp('error', 'Error', [error.message || 'Failed to update component']);
+        globalThis.show_popup_temp('error', 'Error', [error.message || 'Failed to update item']);
     }
 }
 
@@ -819,7 +819,7 @@ async function submitSupplierItemForm() {
 
     const ensuredComponentId = await ensureSupplierItemComponentSelected(form, target);
     if (!ensuredComponentId) {
-        globalThis.show_popup_temp('error', 'Validation Error', ['Component is required']);
+        globalThis.show_popup_temp('error', 'Validation Error', ['Item is required']);
         return;
     }
 
@@ -1168,7 +1168,7 @@ function renderSupplierItems(supplierId) {
             const componentMinQty = item.min_quantity ?? item.component?.min_quantity ?? '-';
             const componentMaxQty = item.max_quantity ?? item.component?.max_quantity ?? '-';
             const componentSubscription = item.subscription_period || item.component?.subscription_period || '-';
-            const componentName = item.component_name || item.component?.component_name || 'Unknown Component';
+            const componentName = item.component_name || item.component?.component_name || 'Unknown Item';
             const componentCode = item.component_code || item.component?.component_code || '-';
             const componentCurrency = item.currency || item.component?.currency || 'RM';
 
@@ -1417,7 +1417,7 @@ async function loadComponentsByCategory(categoryId) {
     }
 
     if (!categoryId) {
-        componentSelect.innerHTML = '<option value="">No components found</option>';
+        componentSelect.innerHTML = '<option value="">No items found</option>';
         return;
     }
 
@@ -1425,7 +1425,7 @@ async function loadComponentsByCategory(categoryId) {
     const components = sortByKey(response?.data || [], (component) => component?.component_name);
 
     if (components.length === 0) {
-        componentSelect.innerHTML = '<option value="">No components found</option>';
+        componentSelect.innerHTML = '<option value="">No items found</option>';
         await loadOffersByComponent(null);
         return;
     }
@@ -1452,7 +1452,7 @@ async function loadOffersByComponent(componentId) {
     const offers = sortByKey(response?.data || [], (offer) => offer?.supplier?.name);
 
     if (offers.length === 0) {
-        container.innerHTML = '<div class="pd-10 clr-grey1">No supplier offers found for this component.</div>';
+        container.innerHTML = '<div class="pd-10 clr-grey1">No supplier offers found for this item.</div>';
         return;
     }
 
@@ -1528,7 +1528,7 @@ function bindAssignmentSave() {
         const price = Number(getElement('supplier-price')?.value || 0);
 
         if (!componentId || !supplierId) {
-            globalThis.show_popup_temp('error', 'Validation Error', ['Component and supplier are required']);
+            globalThis.show_popup_temp('error', 'Validation Error', ['Item and supplier are required']);
             return;
         }
 

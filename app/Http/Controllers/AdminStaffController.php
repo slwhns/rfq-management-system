@@ -13,17 +13,19 @@ class AdminStaffController extends Controller
     public function index()
     {
         $staffUsers = User::query()
-            ->whereIn('role', [User::ROLE_STAFF, User::ROLE_ADMIN])
+            ->whereIn('role', [User::ROLE_CLIENT, User::ROLE_ADMIN])
             ->latest()
             ->paginate(10);
 
         $hasUsername = Schema::hasColumn('users', 'username');
+        $hasPhoneNumber = Schema::hasColumn('users', 'phone_number');
 
-        return view('admin.staff.index', compact('staffUsers', 'hasUsername'));
+        return view('admin.staff.index', compact('staffUsers', 'hasUsername', 'hasPhoneNumber'));
     }
 
     public function store(Request $request)
     {
+        $hasPhoneNumber = Schema::hasColumn('users', 'phone_number');
         $nameRules = ['required', 'string', 'max:255'];
         $emailRules = ['required', 'email', 'max:255', Rule::unique('users', 'email')];
         $passwordRules = ['required', 'string', 'min:8'];
@@ -34,11 +36,15 @@ class AdminStaffController extends Controller
             'email' => $emailRules,
             'password' => $passwordRules,
             'company_name' => $companyRules,
-            'role' => ['required', Rule::in([User::ROLE_STAFF, User::ROLE_ADMIN])],
+            'role' => ['required', Rule::in([User::ROLE_CLIENT, User::ROLE_ADMIN])],
         ];
 
         if (Schema::hasColumn('users', 'username')) {
             $rules['username'] = ['required', 'string', 'max:255', Rule::unique('users', 'username')];
+        }
+
+        if ($hasPhoneNumber) {
+            $rules['phone_number'] = ['nullable', 'string', 'max:20'];
         }
 
         $validated = $request->validate($rules);
@@ -49,6 +55,9 @@ class AdminStaffController extends Controller
         $staff->password = Hash::make($validated['password']);
         $staff->company_name = $validated['company_name'] ?? null;
         $staff->role = $validated['role'];
+        if ($hasPhoneNumber) {
+            $staff->phone_number = $validated['phone_number'] ?? null;
+        }
         if (Schema::hasColumn('users', 'username')) {
             $staff->username = $validated['username'];
         }
@@ -62,11 +71,13 @@ class AdminStaffController extends Controller
 
     public function update(Request $request, User $user)
     {
-        if (!in_array($user->normalizedRole(), [User::ROLE_STAFF, User::ROLE_ADMIN], true)) {
+        $hasPhoneNumber = Schema::hasColumn('users', 'phone_number');
+
+        if (!in_array($user->normalizedRole(), [User::ROLE_CLIENT, User::ROLE_ADMIN], true)) {
             return redirect()->route('admin.staff.index')
                 ->with('toast_type', 'error')
                 ->with('toast_title', 'Error')
-                ->with('toast_message', 'Only staff or admin users can be updated here.');
+            ->with('toast_message', 'Only client or admin users can be updated here.');
         }
 
         $rules = [
@@ -74,11 +85,15 @@ class AdminStaffController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8'],
             'company_name' => ['nullable', 'string', 'max:255'],
-            'role' => ['required', Rule::in([User::ROLE_STAFF, User::ROLE_ADMIN])],
+            'role' => ['required', Rule::in([User::ROLE_CLIENT, User::ROLE_ADMIN])],
         ];
 
         if (Schema::hasColumn('users', 'username')) {
             $rules['username'] = ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)];
+        }
+
+        if ($hasPhoneNumber) {
+            $rules['phone_number'] = ['nullable', 'string', 'max:20'];
         }
 
         $request->merge(['_edit_staff_id' => $user->id]);
@@ -87,6 +102,9 @@ class AdminStaffController extends Controller
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->company_name = $validated['company_name'] ?? null;
+        if ($hasPhoneNumber) {
+            $user->phone_number = $validated['phone_number'] ?? null;
+        }
         $user->role = $validated['role'];
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
@@ -111,11 +129,11 @@ class AdminStaffController extends Controller
                 ->with('toast_message', 'You cannot delete your own account.');
         }
 
-        if (!in_array($user->normalizedRole(), [User::ROLE_STAFF, User::ROLE_ADMIN], true)) {
+        if (!in_array($user->normalizedRole(), [User::ROLE_CLIENT, User::ROLE_ADMIN], true)) {
             return redirect()->route('admin.staff.index')
                 ->with('toast_type', 'error')
                 ->with('toast_title', 'Error')
-            ->with('toast_message', 'Only staff or admin users can be deleted here.');
+            ->with('toast_message', 'Only client or admin users can be deleted here.');
         }
 
         $user->delete();
