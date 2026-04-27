@@ -25,6 +25,17 @@ function parseProjects(response) {
     return [];
 }
 
+function projectDisplayName(project) {
+    const name = String(project?.project_name || project?.name || '').trim();
+    const title = String(project?.project_title || '').trim();
+
+    if (name && title && name.toLowerCase() !== title.toLowerCase()) {
+        return `${name} - ${title}`;
+    }
+
+    return name || title || 'Untitled Project';
+}
+
 function updateCurrentProjectLabel(projectName) {
     const badge = document.getElementById('current-project-badge');
     if (!badge) {
@@ -40,7 +51,7 @@ function renderProjectSelect(select, projects) {
     }
 
     select.innerHTML = projects.map((project) => {
-        const projectName = project.project_name || project.name || 'Untitled Project';
+        const projectName = projectDisplayName(project);
         const location = project.location || '-';
         const projectType = project.project_type || '-';
 
@@ -63,7 +74,7 @@ export async function initPricingProjects(onProjectChange) {
     }
 
     const response = await globalThis.api_request('/api/projects', 'GET');
-    const projects = sortByKey(parseProjects(response), (project) => project?.project_name || project?.name);
+    const projects = sortByKey(parseProjects(response), (project) => projectDisplayName(project));
 
     if (projects.length === 0) {
         select.innerHTML = '<option value="">No projects found</option>';
@@ -80,7 +91,7 @@ export async function initPricingProjects(onProjectChange) {
     renderProjectSelect(select, projects);
 
     const selectedProject = projects.find((project) => project.id === projectState.currentProjectId);
-    const selectedName = selectedProject?.project_name || selectedProject?.name || null;
+    const selectedName = selectedProject ? projectDisplayName(selectedProject) : null;
     updateCurrentProjectLabel(selectedName);
 
     select.onchange = async () => {
@@ -92,7 +103,7 @@ export async function initPricingProjects(onProjectChange) {
         projectState.currentProjectId = selectedId;
 
         const project = projects.find((item) => item.id === selectedId);
-        updateCurrentProjectLabel(project?.project_name || project?.name || null);
+        updateCurrentProjectLabel(project ? projectDisplayName(project) : null);
 
         await onProjectChange?.(selectedId);
     };

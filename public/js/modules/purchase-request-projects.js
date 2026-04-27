@@ -3,7 +3,7 @@ export function initPurchaseRequestProjects() {
     const projectList = document.getElementById('quotation-project-list');
     const generateButton = document.getElementById('quotation-generate-btn');
 
-    if (!projectSelect || !projectList || !generateButton || typeof window.api_request !== 'function') {
+    if (!projectSelect || !projectList || !generateButton || typeof globalThis.api_request !== 'function') {
         return;
     }
 
@@ -17,6 +17,17 @@ export function initPurchaseRequestProjects() {
         }
 
         return [];
+    };
+
+    const projectDisplayName = (project) => {
+        const name = String(project?.project_name || project?.name || '').trim();
+        const title = String(project?.project_title || '').trim();
+
+        if (name && title && name.toLowerCase() !== title.toLowerCase()) {
+            return `${name} - ${title}`;
+        }
+
+        return name || title || 'Untitled Project';
     };
 
     const renderProjects = (projects) => {
@@ -38,7 +49,7 @@ export function initPurchaseRequestProjects() {
         projects.forEach((project) => {
             const li = document.createElement('li');
             const isSelected = project.id === selectedProjectId;
-            const projectName = project.project_name || project.name || 'Untitled Project';
+            const projectName = projectDisplayName(project);
             const location = project.location || '-';
             const projectType = project.project_type || '-';
 
@@ -61,10 +72,10 @@ export function initPurchaseRequestProjects() {
 
     const loadProjects = async () => {
         try {
-            const response = await window.api_request('/api/projects', 'GET');
+            const response = await globalThis.api_request('/api/projects', 'GET');
             const projects = parseProjects(response).sort((left, right) => {
-                const leftName = String(left?.project_name || left?.name || '');
-                const rightName = String(right?.project_name || right?.name || '');
+                const leftName = projectDisplayName(left);
+                const rightName = projectDisplayName(right);
                 return leftName.localeCompare(rightName, undefined, { sensitivity: 'base', numeric: true });
             });
 
@@ -79,31 +90,31 @@ export function initPurchaseRequestProjects() {
     generateButton.addEventListener('click', async () => {
         const projectId = Number(projectSelect.value || 0);
         if (!projectId) {
-            window.show_popup_temp?.('error', 'Validation Error', ['Please select a project first']);
+            globalThis.show_popup_temp?.('error', 'Validation Error', ['Please select a project first']);
             return;
         }
 
         try {
-            const response = await window.api_request('/quotes/generate', 'POST', { project_id: projectId });
+            const response = await globalThis.api_request('/quotes/generate', 'POST', { project_id: projectId });
             const quoteNumbers = response?.data?.quote_numbers;
             if (Array.isArray(quoteNumbers) && quoteNumbers.length > 0) {
-                window.show_popup_temp?.('success', 'Purchase Request Created', quoteNumbers);
-                window.location.reload();
+                globalThis.show_popup_temp?.('success', 'Purchase Request Created', quoteNumbers);
+                globalThis.location.reload();
                 return;
             }
 
             const quoteNumber = response?.data?.quote_number;
             if (quoteNumber) {
-                window.show_popup_temp?.('success', 'Purchase Request Created', [quoteNumber]);
-                window.location.reload();
+                globalThis.show_popup_temp?.('success', 'Purchase Request Created', [quoteNumber]);
+                globalThis.location.reload();
                 return;
             }
 
-            window.show_popup_temp?.('success', 'Success', ['Purchase Request generated']);
-            window.location.reload();
+            globalThis.show_popup_temp?.('success', 'Success', ['Purchase Request generated']);
+            globalThis.location.reload();
         } catch (error) {
             console.error(error);
-            window.show_popup_temp?.('error', 'Error', [error?.message || 'Failed to generate Purchase Request']);
+            globalThis.show_popup_temp?.('error', 'Error', [error?.message || 'Failed to generate Purchase Request']);
         }
     });
 

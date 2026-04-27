@@ -3,7 +3,7 @@
     $showResubmittedBadge = (bool) ($showResubmittedBadge ?? false);
 
     $requesterName = optional($quote->createdByUser)->name ?? 'Unknown User';
-    $companyName = optional($quote->createdByUser)->company_name ?? 'QS Smart Data Center';
+    $companyName = optional($quote->createdByUser)->company_name ?? 'RFQ Management System';
     $dateRequested = optional($quote->date_requested)->format('d M Y') ?: optional($quote->created_at)->format('d M Y');
     $dateNeeded = optional($quote->date_needed)->format('d M Y') ?: '-';
 
@@ -115,7 +115,14 @@
                     <td>
                         <div class="fw-bold">{{ $component->component_name ?? 'Item' }}</div>
                         @if($discountPercent > 0 || $lineDiscount > 0)
-                            <div class="fs-12 clr-grey1">Discount: {{ number_format($discountPercent, 2) }}% (RM{{ number_format($lineDiscount, 2) }})</div>
+                            <div class="fs-12 clr-grey1">
+                                Discount: 
+                                @if($quote->discount_type === 'percent')
+                                    {{ number_format($discountPercent, 2) }}%
+                                @else
+                                    RM{{ number_format($lineDiscount, 2) }}
+                                @endif
+                            </div>
                         @endif
                         @if(!empty($component->description))
                             <div class="fs-12 clr-grey1">{{ $component->description }}</div>
@@ -157,6 +164,21 @@
                 <td>Subtotal</td>
                 <td>RM{{ number_format((float) $quote->subtotal, 2) }}</td>
             </tr>
+            @if($quote->discount_total > 0)
+            <tr>
+                <td>
+                    @if($quote->discount_scope === 'lumpsum')
+                        Lump Sum Discount
+                        @if($quote->discount_type === 'percent')
+                            ({{ number_format((float) $quote->discount_value, 2) }}%)
+                        @endif
+                    @else
+                        Total Discount
+                    @endif
+                </td>
+                <td style="color:#bf2f2f;">-RM{{ number_format((float) $quote->discount_total, 2) }}</td>
+            </tr>
+            @endif
             <tr>
                 <td>Taxable</td>
                 <td>RM{{ number_format((float) ($quote->subtotal - $quote->discount_total), 2) }}</td>

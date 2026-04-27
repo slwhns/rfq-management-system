@@ -16,6 +16,13 @@ return new class extends Migration
         $this->renameIfNeeded('quote_items', 'purchase_request_items');
         $this->renameIfNeeded('quote_status_histories', 'purchase_request_status_histories');
 
+        // Add discount_percent column if missing
+        if (Schema::hasTable('purchase_request_items') && !Schema::hasColumn('purchase_request_items', 'discount_percent')) {
+            Schema::table('purchase_request_items', function (Blueprint $table) {
+                $table->decimal('discount_percent', 5, 2)->default(0);
+            });
+        }
+
         $this->addQuoteForeignIfPossible('purchase_request_items', 'purchase_requests');
         $this->addQuoteForeignIfPossible('purchase_request_status_histories', 'purchase_requests');
     }

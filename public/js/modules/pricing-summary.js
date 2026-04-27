@@ -78,6 +78,6 @@ export async function generatePricingQuote(getCurrentProjectId) {
         }, 250);
     } catch (error) {
         console.error(error);
-        globalThis.show_popup_temp('error', 'Error', ['Failed to generate Purchase Request']);
+        globalThis.show_popup_temp('error', 'Error', [error?.message || 'Failed to generate Purchase Request']);
     }
 }

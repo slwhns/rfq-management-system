@@ -14,9 +14,14 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::withCount('components')
-            ->latest()
-            ->paginate(10);
+        $query = Project::withCount('components')->latest();
+        $currentUser = request()->user();
+        
+        if ($currentUser && in_array($currentUser->normalizedRole(), [User::ROLE_CLIENT, User::ROLE_STAFF], true)) {
+            $query->where('user_id', $currentUser->id);
+        }
+        
+        $projects = $query->paginate(10);
 
         if (request()->wantsJson()) {
             return response()->json([
@@ -35,15 +40,17 @@ class ProjectController extends Controller
     {
         $request->validate([
             'project_name' => 'required|string|max:255',
+            'project_title' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
             'project_type' => 'required|in:new,retrofit,expansion',
             'tax_rate' => 'nullable|numeric|min:0|max:100'
         ]);
 
-        // Use a default user ID or make it optional
+        // Assign the logged in user as the owner, or default to 1 if not logged in
         $project = Project::create([
-            'user_id' => 1, // Default user ID
+            'user_id' => request()->user()?->id ?? 1,
             'project_name' => $request->project_name,
+            'project_title' => $request->input('project_title') ?: $request->project_name,
             'location' => $request->location,
             'project_type' => $request->project_type,
             'status' => 'draft',
@@ -64,6 +71,8 @@ class ProjectController extends Controller
     {
         $project = Project::with('components.component')
             ->findOrFail($id);
+            
+        $this->enforceOwnProjectForClientStaff(request()->user(), $project);
 
         if (request()->wantsJson()) {
             return response()->json([
@@ -81,9 +90,11 @@ class ProjectController extends Controller
     public function update(Request $request, $id)
     {
         $project = Project::findOrFail($id);
+        $this->enforceOwnProjectForClientStaff($request->user(), $project);
 
         $request->validate([
             'project_name' => 'required|string|max:255',
+            'project_title' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
             'project_type' => 'required|in:new,retrofit,expansion',
             'tax_rate' => 'nullable|numeric|min:0|max:100',
@@ -91,6 +102,7 @@ class ProjectController extends Controller
 
         $project->update([
             'project_name' => $request->project_name,
+            'project_title' => $request->input('project_title') ?: $request->project_name,
             'location' => $request->location,
             'project_type' => $request->project_type,
             'tax_rate' => $request->input('tax_rate', $project->tax_rate ?? 10),
@@ -109,6 +121,7 @@ class ProjectController extends Controller
     public function destroy($id)
     {
         $project = Project::findOrFail($id);
+        $this->enforceOwnProjectForClientStaff(request()->user(), $project);
         $project->delete();
 
         return response()->json([
@@ -123,6 +136,9 @@ class ProjectController extends Controller
     public function updateComponent(Request $request, $id)
     {
         $component = ProjectComponent::findOrFail($id);
+        if ($component->project) {
+            $this->enforceOwnProjectForClientStaff($request->user(), $component->project);
+        }
 
         $validated = $request->validate([
             'quantity' => 'required|integer|min:1',
@@ -161,6 +177,9 @@ class ProjectController extends Controller
     public function destroyComponent($id)
     {
         $component = ProjectComponent::findOrFail($id);
+        if ($component->project) {
+            $this->enforceOwnProjectForClientStaff(request()->user(), $component->project);
+        }
         $component->delete();
 
         return response()->json([
@@ -181,5 +200,16 @@ class ProjectController extends Controller
         }
 
         abort(404, "View not found for role: {$view}");
+    }
+
+    private function enforceOwnProjectForClientStaff(?User $currentUser, Project $project): void
+    {
+        if (! $currentUser) {
+            return;
+        }
+
+        if (in_array($currentUser->normalizedRole(), [User::ROLE_CLIENT, User::ROLE_STAFF], true)) {
+            abort_unless((int) $project->user_id === (int) $currentUser->id, 403, 'You can only access your own project.');
+        }
     }
 }

@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'superadmin@qs.local'],
             [
                 'name' => 'System Superadmin',
+                'username' => 'superadmin',
                 'password' => Hash::make('superadmin1234'),
                 'company_name' => self::COMPANY_NAME,
                 'role' => User::ROLE_SUPERADMIN,
@@ -29,6 +30,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@qs.local'],
             [
                 'name' => 'System Admin',
+                'username' => 'admin',
                 'password' => Hash::make('admin1234'),
                 'company_name' => self::COMPANY_NAME,
                 'role' => User::ROLE_ADMIN,
@@ -39,6 +41,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'staff@qs.local'],
             [
                 'name' => 'Staff User',
+                'username' => 'staff',
                 'password' => Hash::make('staff1234'),
                 'company_name' => self::COMPANY_NAME,
                 'role' => User::ROLE_STAFF,

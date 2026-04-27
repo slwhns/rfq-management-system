@@ -33,13 +33,7 @@ Route::post('/add-component', [PricingController::class, 'addComponent']);
 Route::get('/calculate/{projectId}', [PricingController::class, 'calculate']);
 Route::delete('/components/{id}', [PricingController::class, 'removeComponent']);
 
-Route::get('/projects', [ProjectController::class, 'index']);
-Route::post('/projects', [ProjectController::class, 'store']);
-Route::get($projectByIdPath, [ProjectController::class, 'show']);
-Route::patch($projectByIdPath, [ProjectController::class, 'update']);
-Route::delete($projectByIdPath, [ProjectController::class, 'destroy']);
-Route::patch('/project-components/{id}', [ProjectController::class, 'updateComponent']);
-Route::delete('/project-components/{id}', [ProjectController::class, 'destroyComponent']);
+
 
 Route::get('/quotes', [QuoteController::class, 'index']);
 Route::get('/rfqs', [QuoteController::class, 'index']);

@@ -1,0 +1,71 @@
+/* Custom overrides for dark theme integration */
+body, html {
+    background: #181818 !important;
+    color: #f5f5f5 !important;
+}
+
+.app-shell, .app-content, .header, .app-sidebar, .profile-rail, .box-shadow-basic, .bg-white5, .bdr-bottom-22, .app-main {
+    background: #232323 !important;
+    color: #f5f5f5 !important;
+    box-shadow: none !important;
+    border-color: #333 !important;
+}
+
+/* Sidebar */
+.app-sidebar {
+    background: #1a1a1a !important;
+    border-right: 1px solid #222 !important;
+}
+
+/* Cards and containers */
+.bg-white5, .box-shadow-basic, .bdr-bottom-22 {
+    background: #232323 !important;
+    border-radius: 12px !important;
+    border: 1px solid #222 !important;
+}
+
+/* Buttons */
+button, .btn, .profile-rail-btn {
+    background: #232323 !important;
+    color: #f5f5f5 !important;
+    border: 1px solid #444 !important;
+}
+button:hover, .btn:hover, .profile-rail-btn:hover {
+    background: #333 !important;
+    color: #fff !important;
+}
+
+/* Inputs */
+input, select, textarea {
+    background: #181818 !important;
+    color: #f5f5f5 !important;
+    border: 1px solid #333 !important;
+}
+
+/* Header */
+.header, .app-header {
+    background: #232323 !important;
+    border-bottom: 1px solid #222 !important;
+}
+
+/* Profile rail */
+.profile-rail {
+    background: #232323 !important;
+    border-left: 1px solid #222 !important;
+}
+
+/* Links */
+a, a:visited {
+    color: #ffa726 !important;
+}
+a:hover {
+    color: #ffb74d !important;
+}
+
+/* Misc */
+::-webkit-scrollbar {
+    background: #232323;
+}
+::-webkit-scrollbar-thumb {
+    background: #333;
+}

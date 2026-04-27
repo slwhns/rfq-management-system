@@ -165,7 +165,12 @@
 
                     <div>
                         <label for="staff-modal-password" id="staff-password-label" class="fs-12 fw-bold mg-b-5 d-block">Temporary Password</label>
-                        <input id="staff-modal-password" type="password" name="password" class="pd-10 bdr-all-22 br-5 w-100" required>
+                        <div style="position: relative; width: 100%;">
+                            <input id="staff-modal-password" type="password" name="password" class="pd-10 bdr-all-22 br-5 w-100" style="padding-right: 40px; box-sizing: border-box;" required>
+                            <button type="button" tabindex="-1" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); border: none; background: transparent; cursor: pointer; color: #666; padding: 4px;" onclick="toggleStaffPasswordVisibility(this)">
+                                <i class="ri-eye-line fs-14"></i>
+                            </button>
+                        </div>
                         <div id="staff-password-help" class="fs-11 clr-grey1 mg-t-5" style="display:none;">Leave blank to keep current password.</div>
                     </div>
                 </div>
@@ -178,6 +183,23 @@
         </form>
     </div>
 </div>
+
+<script>
+function toggleStaffPasswordVisibility(btn) {
+    const input = document.getElementById('staff-modal-password');
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('ri-eye-line');
+        icon.classList.add('ri-eye-off-line');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('ri-eye-off-line');
+        icon.classList.add('ri-eye-line');
+    }
+}
+</script>
+
 
 @endsection
 

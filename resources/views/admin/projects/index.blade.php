@@ -123,6 +123,10 @@
                     <input id="modal-project-name" class="pd-10 bdr-all-22 br-5 w-100" type="text" placeholder="e.g. Smart Campus DC Upgrade">
                 </div>
                 <div>
+                    <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-project-title">Project Title *</label>
+                    <input id="modal-project-title" class="pd-10 bdr-all-22 br-5 w-100" type="text" placeholder="e.g. Smart Data Center Upgrade Phase 2">
+                </div>
+                <div>
                     <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-project-location">Location</label>
                     <input id="modal-project-location" class="pd-10 bdr-all-22 br-5 w-100" type="text" placeholder="e.g. Kuala Lumpur">
                 </div>

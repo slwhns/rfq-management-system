@@ -91,17 +91,19 @@ function openAddProjectModal() {
     modalState.currentProjectId = null;
 
     const nameInput = document.getElementById('modal-project-name');
+    const titleInput = document.getElementById('modal-project-title');
     const locationInput = document.getElementById('modal-project-location');
     const typeInput = document.getElementById('modal-project-type');
     const taxRateInput = document.getElementById('modal-project-tax-rate');
     const title = document.getElementById('project-modal-title');
     const submit = document.getElementById('project-modal-submit');
 
-    if (!nameInput || !locationInput || !typeInput || !taxRateInput || !title || !submit) {
+    if (!nameInput || !titleInput || !locationInput || !typeInput || !taxRateInput || !title || !submit) {
         return;
     }
 
     nameInput.value = '';
+    titleInput.value = '';
     locationInput.value = '';
     typeInput.value = 'new';
     taxRateInput.value = '10.00';
@@ -122,18 +124,20 @@ async function openEditProjectModal(projectId) {
         }
 
         const nameInput = document.getElementById('modal-project-name');
+        const titleInput = document.getElementById('modal-project-title');
         const locationInput = document.getElementById('modal-project-location');
         const typeInput = document.getElementById('modal-project-type');
         const taxRateInput = document.getElementById('modal-project-tax-rate');
         const title = document.getElementById('project-modal-title');
         const submit = document.getElementById('project-modal-submit');
 
-        if (!nameInput || !locationInput || !typeInput || !taxRateInput || !title || !submit) {
+        if (!nameInput || !titleInput || !locationInput || !typeInput || !taxRateInput || !title || !submit) {
             return;
         }
 
         modalState.currentProjectId = projectId;
         nameInput.value = project.project_name || project.name || '';
+        titleInput.value = project.project_title || project.project_name || project.name || '';
         locationInput.value = project.location || '';
         typeInput.value = project.project_type || 'new';
         taxRateInput.value = Number(project.tax_rate ?? 10).toFixed(2);
@@ -150,21 +154,28 @@ async function openEditProjectModal(projectId) {
 async function submitProjectModal() {
     try {
         const nameInput = document.getElementById('modal-project-name');
+        const titleInput = document.getElementById('modal-project-title');
         const locationInput = document.getElementById('modal-project-location');
         const typeInput = document.getElementById('modal-project-type');
         const taxRateInput = document.getElementById('modal-project-tax-rate');
 
-        if (!nameInput || !locationInput || !typeInput || !taxRateInput) {
+        if (!nameInput || !titleInput || !locationInput || !typeInput || !taxRateInput) {
             return;
         }
 
         const projectName = nameInput.value.trim();
+        const projectTitle = titleInput.value.trim();
         const location = locationInput.value.trim();
         const projectType = typeInput.value;
         const taxRate = Number(taxRateInput.value || 0);
 
         if (!projectName) {
             globalThis.show_popup_temp('error', 'Validation Error', ['Project name is required']);
+            return;
+        }
+
+        if (!projectTitle) {
+            globalThis.show_popup_temp('error', 'Validation Error', ['Project title is required']);
             return;
         }
 
@@ -175,6 +186,7 @@ async function submitProjectModal() {
 
         const payload = {
             project_name: projectName,
+            project_title: projectTitle,
             location,
             project_type: projectType,
             tax_rate: taxRate,

@@ -107,6 +107,14 @@ Route::prefix('api')->group(function () {
     Route::post('/add-component', [PricingController::class, 'addComponent']);
     Route::get('/calculate/{projectId}', [PricingController::class, 'calculate']);
     Route::delete('/components/{id}', [PricingController::class, 'removeComponent']);
+
+    Route::get('/projects', [ProjectController::class, 'index']);
+    Route::post('/projects', [ProjectController::class, 'store']);
+    Route::get('/projects/{id}', [ProjectController::class, 'show']);
+    Route::patch('/projects/{id}', [ProjectController::class, 'update']);
+    Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+    Route::patch('/project-components/{id}', [ProjectController::class, 'updateComponent']);
+    Route::delete('/project-components/{id}', [ProjectController::class, 'destroyComponent']);
 });
 
 require __DIR__.'/auth.php';

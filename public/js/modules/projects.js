@@ -243,7 +243,7 @@ function renderSelectedProjectComponents(project) {
     }
 
     if (nameBadge) {
-        nameBadge.textContent = project.project_name || project.name || 'Selected project';
+        nameBadge.textContent = projectDisplayName(project) || 'Selected project';
     }
 
     const components = sortByKey(Array.isArray(project.components) ? project.components : [], (projectComponent) => projectComponent?.component?.component_name);
@@ -319,6 +319,17 @@ function parseProjects(response) {
     return [];
 }
 
+function projectDisplayName(project) {
+    const name = String(project?.project_name || project?.name || '').trim();
+    const title = String(project?.project_title || '').trim();
+
+    if (name && title && name.toLowerCase() !== title.toLowerCase()) {
+        return `${name} - ${title}`;
+    }
+
+    return name || title || 'Untitled Project';
+}
+
 function renderProjectsEmptyState(list, select) {
     if (list) {
         list.innerHTML = '<li class="pd-10 clr-grey1">No projects found.</li>';
@@ -346,7 +357,7 @@ function renderProjectManagerList() {
         const row = document.createElement('div');
         row.className = 'pd-12 bdr-bottom-22';
 
-        const projectName = project.project_name || project.name || 'Untitled Project';
+        const projectName = projectDisplayName(project);
         const location = project.location || '-';
         const projectType = project.project_type || '-';
         const taxRate = Number(project.tax_rate ?? 10).toFixed(2);
@@ -402,7 +413,7 @@ function renderProjectSelect(select, projects) {
     }
 
     select.innerHTML = projects.map((project) => {
-        const projectName = project.project_name || project.name || 'Untitled Project';
+        const projectName = projectDisplayName(project);
         const location = project.location || '-';
         const projectType = project.project_type || '-';
 
@@ -435,7 +446,7 @@ function renderProjectList(list, projects) {
 
         li.className = `pd-10 cursor-pointer bdr-bottom-22 ${isSelected ? 'app-selected-item clr-black1 br-10' : ''}`;
 
-        const projectName = project.project_name || project.name || 'Untitled Project';
+        const projectName = projectDisplayName(project);
         const location = project.location || '-';
         const projectType = project.project_type || '-';
         const componentCount = project.components_count ?? 0;
@@ -476,7 +487,7 @@ function renderProjectList(list, projects) {
 // load projects
 export async function loadProjects() {
     const response = await api_request('/api/projects', 'GET');
-    const projects = sortByKey(parseProjects(response), (project) => project?.project_name || project?.name);
+    const projects = sortByKey(parseProjects(response), (project) => projectDisplayName(project));
     cachedProjects = projects;
 
     const list = document.getElementById('project-list');
@@ -510,7 +521,7 @@ export async function loadProjects() {
     renderProjectManagerList();
 
     const selectedProject = projects.find((p) => p.id === projectState.currentProjectId);
-    updateSelectedProjectLabel(selectedProject?.project_name || selectedProject?.name || null);
+    updateSelectedProjectLabel(selectedProject ? projectDisplayName(selectedProject) : null);
     await loadSelectedProjectComponents(selectedProject?.id || null);
     await calculateProjectPricingSummary(selectedProject?.id || null);
     await globalThis.refreshPricingSelectedComponents?.(selectedProject?.id || null);

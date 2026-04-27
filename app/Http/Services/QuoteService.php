@@ -80,6 +80,9 @@ class QuoteService
                 'version' => 1,
                 'subtotal' => round($subtotal, 2),
                 'discount_total' => round($discountTotal, 2),
+                'discount_scope' => 'item',
+                'discount_type' => 'percent',
+                'discount_value' => null,
                 'tax_rate' => round($taxRate, 2),
                 'tax_amount' => round($taxAmount, 2),
                 'total_amount' => round($totalAmount, 2),
@@ -97,6 +100,8 @@ class QuoteService
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'discount_percent' => $item['discount_percent'],
+                    'discount_type' => 'percent',
+                    'discount_value' => $item['discount_percent'],
                     'line_total' => $item['line_total']
                 ]);
             }
@@ -115,15 +120,23 @@ class QuoteService
     {
         $prefix = 'QUO';
 
-        $lastQuote = Quote::where('quote_number', 'like', $prefix . '-%')
-            ->orderBy('id', 'desc')
-            ->first();
+        $maxSequence = 0;
+        $quoteNumbers = Quote::where('quote_number', 'like', $prefix . '-%')->pluck('quote_number');
 
-        $nextNumber = 1;
-        if ($lastQuote && preg_match('/^QUO-(\d+)$/', $lastQuote->quote_number, $matches)) {
-            $nextNumber = ((int) $matches[1]) + 1;
+        foreach ($quoteNumbers as $quoteNumber) {
+            if (preg_match('/^' . $prefix . '-(\d+)(?:-V\d+)?$/', (string) $quoteNumber, $matches)) {
+                $maxSequence = max($maxSequence, (int) $matches[1]);
+            }
         }
 
-        return sprintf('%s-%03d', $prefix, $nextNumber);
+        $nextNumber = $maxSequence + 1;
+        $candidate = sprintf('%s-%03d', $prefix, $nextNumber);
+
+        while (Quote::where('quote_number', $candidate)->exists()) {
+            $nextNumber++;
+            $candidate = sprintf('%s-%03d', $prefix, $nextNumber);
+        }
+
+        return $candidate;
     }
 }

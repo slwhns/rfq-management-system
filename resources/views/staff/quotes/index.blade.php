@@ -41,11 +41,12 @@
             <div class="pd-20 fs-13 clr-grey1">No RFQs generated yet.</div>
         @else
             <div class="of-auto" style="max-height: 520px; overflow-y: auto;">
-                <table style="width:100%; border-collapse: collapse; min-width: 760px;">
+                <table style="width:100%; border-collapse: collapse; min-width: 920px;">
                     <thead>
                         <tr style="border-bottom:1px solid #d8d8d8;">
                             <th style="text-align:left; padding:12px 8px;">Quote</th>
-                            <th style="text-align:left; padding:12px 8px;">Project</th>
+                            <th style="text-align:left; padding:12px 8px;">Project Name</th>
+                            <th style="text-align:left; padding:12px 8px;">Project Title</th>
                             <th style="text-align:left; padding:12px 8px;">Date</th>
                             <th style="text-align:center; padding:12px 8px; width:170px;">Status</th>
                             <th style="text-align:center; padding:12px 8px;">Action</th>
@@ -53,12 +54,19 @@
                     </thead>
                     <tbody>
                         @foreach($quotes as $quote)
+                            @php
+                                $projectName = trim((string) ($quote->project->project_name ?? ''));
+                                $projectTitle = trim((string) ($quote->project->project_title ?? ''));
+                            @endphp
                             <tr style="border-bottom:1px solid #ececec;">
                                 <td style="padding:10px 8px;">
                                     <a href="{{ route('rfqs.show', $quote->id) }}" style="color:#2f55c7; text-decoration:underline;">{{ $quote->quote_number }}</a>
                                 </td>
                                 <td style="padding:10px 8px;">
-                                    <a href="{{ route('rfqs.show', $quote->id) }}" style="color:#2f55c7; text-decoration:underline;">{{ $quote->project->project_name ?? '-' }}</a>
+                                    <a href="{{ route('rfqs.show', $quote->id) }}" style="color:#2f55c7; text-decoration:underline;">{{ $projectName !== '' ? $projectName : '-' }}</a>
+                                </td>
+                                <td style="padding:10px 8px;">
+                                    <a href="{{ route('rfqs.show', $quote->id) }}" style="color:#2f55c7; text-decoration:underline;">{{ $projectTitle !== '' ? $projectTitle : '-' }}</a>
                                 </td>
                                 <td style="padding:10px 8px;">{{ optional($quote->created_at)->format('d M Y') }}</td>
                                 <td style="padding:10px 8px; text-align:center;">

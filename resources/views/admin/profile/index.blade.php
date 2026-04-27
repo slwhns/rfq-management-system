@@ -44,7 +44,7 @@
                 <div class="profile-value">{{ $user?->phone_number ?? '-' }}</div>
 
                 <div class="profile-label">Company</div>
-                <div class="profile-value">{{ $user?->company_name ?? 'QS Smart Data Center' }}</div>
+                <div class="profile-value">{{ $user?->company_name ?? 'RFQ Management System' }}</div>
 
                 <div class="profile-label">Address</div>
                 <div class="profile-value">{{ $user?->address ?? '-' }}</div>

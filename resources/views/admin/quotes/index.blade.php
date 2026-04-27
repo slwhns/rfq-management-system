@@ -34,11 +34,12 @@
             <div class="pd-20 fs-13 clr-grey1">No submitted RFQs yet.</div>
         @else
             <div class="of-auto">
-                <table style="width:100%; border-collapse: collapse; min-width: 900px;">
+                <table style="width:100%; border-collapse: collapse; min-width: 1040px;">
                     <thead>
                         <tr style="border-bottom:1px solid #d8d8d8;">
                             <th style="text-align:left; padding:12px 8px;">Quote</th>
-                            <th style="text-align:left; padding:12px 8px;">Project</th>
+                            <th style="text-align:left; padding:12px 8px;">Project Name</th>
+                            <th style="text-align:left; padding:12px 8px;">Project Title</th>
                             <th style="text-align:left; padding:12px 8px;">Client</th>
                             <th style="text-align:left; padding:12px 8px;">Date</th>
                             <th style="text-align:center; padding:12px 8px; width:170px;">Status</th>
@@ -50,10 +51,13 @@
                             @php
                                 $normalizedStatus = \App\Models\Quote::normalizeStatus($quote->status);
                                 $statusStyle = $statusStyles[$normalizedStatus] ?? ['background' => '#f5f5f5', 'color' => '#4d4d4d', 'border' => '#dddddd'];
+                                $projectName = trim((string) ($quote->project->project_name ?? ''));
+                                $projectTitle = trim((string) ($quote->project->project_title ?? ''));
                             @endphp
                             <tr style="border-bottom:1px solid #ececec;">
                                 <td style="padding:10px 8px;"><a href="{{ route('rfqs.show', $quote->id) }}" class="txt-none" style="color:#2f55c7;">{{ $quote->quote_number }}</a></td>
-                                <td style="padding:10px 8px;"><a href="{{ route('rfqs.show', $quote->id) }}" class="txt-none" style="color:#2f55c7;">{{ $quote->project->project_name ?? '-' }}</a></td>
+                                <td style="padding:10px 8px;"><a href="{{ route('rfqs.show', $quote->id) }}" class="txt-none" style="color:#2f55c7;">{{ $projectName !== '' ? $projectName : '-' }}</a></td>
+                                <td style="padding:10px 8px;"><a href="{{ route('rfqs.show', $quote->id) }}" class="txt-none" style="color:#2f55c7;">{{ $projectTitle !== '' ? $projectTitle : '-' }}</a></td>
                                 <td style="padding:10px 8px;">{{ $quote->createdByUser->email ?? 'No Email' }}</td>
                                 <td style="padding:10px 8px;">{{ optional($quote->date_requested)->format('d M Y') ?: optional($quote->created_at)->format('d M Y') }}</td>
                                 <td style="padding:10px 8px; text-align:center;">

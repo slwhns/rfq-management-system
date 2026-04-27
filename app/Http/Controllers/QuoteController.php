@@ -101,9 +101,6 @@ class QuoteController extends Controller
         $role = $currentUser?->normalizedRole();
         $visibleStatuses = Quote::visibleStatusesForRole($role);
         $isAdminRole = in_array($role, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true);
-        if ($isAdminRole) {
-            $visibleStatuses = array_values(array_diff($visibleStatuses, [Quote::STATUS_DRAFT]));
-        }
         $statusOptions = Quote::visibleStatusOptionsForRole($role);
         if ($role === User::ROLE_SUPERADMIN) {
             $quoteListSubtitle = 'RFQs submitted by clients.';
@@ -114,9 +111,12 @@ class QuoteController extends Controller
         }
         $selectedStatus = (string) request()->query('status', '');
         $projectSearch = trim((string) request()->query('search', request()->query('project', '')));
-        $filterStatuses = $isAdminRole
-            ? [Quote::STATUS_SENT, Quote::STATUS_APPROVED, Quote::STATUS_DECLINED]
-            : [Quote::STATUS_DRAFT, Quote::STATUS_SENT, Quote::STATUS_APPROVED, Quote::STATUS_DECLINED];
+        $filterStatuses = [
+            Quote::STATUS_DRAFT,
+            Quote::STATUS_SENT,
+            Quote::STATUS_APPROVED,
+            Quote::STATUS_DECLINED,
+        ];
 
         $filterOptions = ['' => 'All status'] + collect($filterStatuses)
             ->filter(fn ($status) => isset($statusOptions[$status]))
@@ -161,7 +161,12 @@ class QuoteController extends Controller
                     ->where('to_status', Quote::STATUS_DRAFT)
                     ->where('status_note', 'like', 'RFQ re-issued from%')
                     ->latest();
-            }]);
+            }])->where(function ($q) use ($expandStatuses) {
+                $q->whereNotIn('status', $expandStatuses([Quote::STATUS_DRAFT]))
+                  ->orWhereHas('createdByUser', function ($uQuery) {
+                      $uQuery->whereIn('role', [User::ROLE_SUPERADMIN, User::ROLE_ADMIN]);
+                  });
+            });
         }
         if (in_array($role, [User::ROLE_CLIENT, User::ROLE_STAFF], true) && $currentUser) {
             $query->where('created_by', $currentUser->id);
@@ -173,7 +178,10 @@ class QuoteController extends Controller
         if ($projectSearch !== '') {
             $query->where(function ($searchQuery) use ($projectSearch) {
                 $searchQuery->whereHas('project', function ($projectQuery) use ($projectSearch) {
-                    $projectQuery->where('project_name', 'like', '%' . $projectSearch . '%');
+                    $projectQuery->where(function ($projectNameQuery) use ($projectSearch) {
+                        $projectNameQuery->where('project_name', 'like', '%' . $projectSearch . '%')
+                            ->orWhere('project_title', 'like', '%' . $projectSearch . '%');
+                    });
                 })->orWhereHas('createdByUser', function ($userQuery) use ($projectSearch) {
                     $userQuery->where('name', 'like', '%' . $projectSearch . '%')
                         ->orWhere('email', 'like', '%' . $projectSearch . '%');
@@ -220,9 +228,10 @@ class QuoteController extends Controller
      */
     public function show($id)
     {
-        $quote = Quote::with(['project', 'items.component'])
+        $quote = Quote::with(['project', 'items.component', 'createdByUser'])
             ->findOrFail($id);
         $this->enforceOwnQuoteForClientStaff(request()->user(), $quote);
+        $this->enforceAdminCannotAccessClientDraft(request()->user(), $quote);
 
         $componentIds = collect($quote->items)->pluck('component_id')->filter()->unique()->values();
         $defaultCompany = trim((string) optional($quote->project?->user)->company_name);
@@ -392,6 +401,9 @@ class QuoteController extends Controller
                 'version' => $nextVersion,
                 'subtotal' => (float) $quote->subtotal,
                 'discount_total' => (float) $quote->discount_total,
+                'discount_scope' => $quote->discount_scope,
+                'discount_type' => $quote->discount_type,
+                'discount_value' => $quote->discount_value !== null ? (float) $quote->discount_value : null,
                 'tax_rate' => (float) $quote->tax_rate,
                 'tax_amount' => (float) $quote->tax_amount,
                 'total_amount' => (float) $quote->total_amount,
@@ -415,6 +427,8 @@ class QuoteController extends Controller
                     'quantity' => (int) $item->quantity,
                     'unit_price' => (float) $item->unit_price,
                     'discount_percent' => (float) ($item->discount_percent ?? 0),
+                    'discount_type' => $item->discount_type,
+                    'discount_value' => $item->discount_value !== null ? (float) $item->discount_value : null,
                     'line_total' => (float) $item->line_total,
                 ]);
             }
@@ -476,9 +490,10 @@ class QuoteController extends Controller
      */
     public function edit($id)
     {
-        $quote = Quote::with(['project', 'items.component'])
+        $quote = Quote::with(['project', 'items.component', 'createdByUser'])
             ->findOrFail($id);
         $this->enforceOwnQuoteForClientStaff(request()->user(), $quote);
+        $this->enforceAdminCannotAccessClientDraft(request()->user(), $quote);
 
         $role = request()->user()?->normalizedRole();
         $normalizedStatus = Quote::normalizeStatus($quote->status);
@@ -505,8 +520,9 @@ class QuoteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $quote = Quote::with(['items.component', 'project'])->findOrFail($id);
+        $quote = Quote::with(['items.component', 'project', 'createdByUser'])->findOrFail($id);
         $this->enforceOwnQuoteForClientStaff($request->user(), $quote);
+        $this->enforceAdminCannotAccessClientDraft($request->user(), $quote);
         $normalizedStatus = Quote::normalizeStatus($quote->status);
         $role = $request->user()?->normalizedRole();
         if (in_array($role, [User::ROLE_CLIENT, User::ROLE_STAFF], true) && $normalizedStatus === Quote::STATUS_SENT) {
@@ -528,12 +544,24 @@ class QuoteController extends Controller
             'date_needed' => 'nullable|date',
             'tax_rate' => 'required|numeric|min:0|max:100',
             'client_note' => 'nullable|string|max:5000',
+            'discount_scope' => ['nullable', Rule::in(['item', 'lumpsum'])],
+            'discount_type' => ['nullable', Rule::in(['percent', 'amount'])],
+            'discount_value' => 'nullable|numeric|min:0',
             'items' => 'required|array|min:1',
             'items.*.id' => 'required|integer|exists:purchase_request_items,id',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.unit_price' => 'nullable|numeric|min:0',
             'items.*.discount_percent' => 'nullable|numeric|min:0|max:100',
+            'items.*.discount_value' => 'nullable|numeric|min:0',
         ]);
+
+        $discountScope = $validated['discount_scope'] ?? $quote->discount_scope ?? 'item';
+        $discountType = $validated['discount_type'] ?? $quote->discount_type ?? 'percent';
+        if ($discountScope === 'lumpsum' && $discountType === 'percent') {
+            $request->validate([
+                'discount_value' => 'nullable|numeric|min:0|max:100',
+            ]);
+        }
 
         $incomingItems = collect($validated['items']);
         $incomingIds = $incomingItems->pluck('id')->map(fn($value) => (int) $value)->all();
@@ -557,9 +585,19 @@ class QuoteController extends Controller
             abort(403, 'You do not have permission to update quote to this status.');
         }
 
-        DB::transaction(function () use ($quote, $validated, $incomingItems, $fromStatus, $toStatus, $request, $role, $removedItemIds) {
+        DB::transaction(function () use ($quote, $validated, $incomingItems, $fromStatus, $toStatus, $request, $role, $removedItemIds, $discountScope, $discountType) {
             $subtotal = 0.0;
             $discountTotal = 0.0;
+
+            $quoteDiscountValue = array_key_exists('discount_value', $validated)
+                ? (float) ($validated['discount_value'] ?? 0)
+                : (float) ($quote->discount_value ?? 0);
+
+            if ($discountType === 'percent') {
+                $quoteDiscountValue = max(0, min(100, $quoteDiscountValue));
+            } else {
+                $quoteDiscountValue = max(0, $quoteDiscountValue);
+            }
 
             foreach ($incomingItems as $itemData) {
                 $quantity = (int) $itemData['quantity'];
@@ -567,21 +605,52 @@ class QuoteController extends Controller
                 $unitPrice = array_key_exists('unit_price', $itemData)
                     ? (float) ($itemData['unit_price'] ?? 0)
                     : (float) ($quoteItem?->unit_price ?? 0);
-                $discountPercent = array_key_exists('discount_percent', $itemData)
-                    ? (float) ($itemData['discount_percent'] ?? 0)
-                    : (float) ($quoteItem?->discount_percent ?? 0);
 
                 $lineSubtotal = $quantity * $unitPrice;
-                $lineDiscount = $lineSubtotal * ($discountPercent / 100);
-                $lineTotal = $lineSubtotal - $lineDiscount;
+                $lineDiscount = 0.0;
+                $lineTotal = $lineSubtotal;
+                $itemDiscountPercent = 0.0;
+                $itemDiscountValue = 0.0;
+
+                if ($discountScope === 'item') {
+                    $itemDiscountValue = array_key_exists('discount_value', $itemData)
+                        ? (float) ($itemData['discount_value'] ?? 0)
+                        : (
+                            array_key_exists('discount_percent', $itemData)
+                                ? (float) ($itemData['discount_percent'] ?? 0)
+                                : (
+                                    $discountType === 'amount'
+                                        ? (float) ($quoteItem?->discount_value ?? 0)
+                                        : (float) ($quoteItem?->discount_percent ?? 0)
+                                )
+                        );
+
+                    if ($discountType === 'percent') {
+                        $itemDiscountValue = max(0, min(100, $itemDiscountValue));
+                        $itemDiscountPercent = $itemDiscountValue;
+                        $lineDiscount = $lineSubtotal * ($itemDiscountPercent / 100);
+                    } else {
+                        $itemDiscountValue = max(0, $itemDiscountValue);
+                        $lineDiscount = min($itemDiscountValue, $lineSubtotal);
+                        $itemDiscountPercent = $lineSubtotal > 0
+                            ? ($lineDiscount / $lineSubtotal) * 100
+                            : 0;
+                    }
+
+                    $lineTotal = $lineSubtotal - $lineDiscount;
+                }
 
                 $subtotal += $lineSubtotal;
-                $discountTotal += $lineDiscount;
+                if ($discountScope === 'item') {
+                    $discountTotal += $lineDiscount;
+                }
 
                 QuoteItem::where('id', $itemData['id'])->update([
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
-                    'discount_percent' => $discountPercent,
+                    'discount_percent' => round($itemDiscountPercent, 2),
+                    'discount_type' => $discountScope === 'item' ? $discountType : 'percent',
+                    'discount_value' => round($discountScope === 'item' ? $itemDiscountValue : 0, 2),
                     'line_total' => round($lineTotal, 2),
                 ]);
 
@@ -599,13 +668,21 @@ class QuoteController extends Controller
                             }
                         }
 
-                        $notes['discount_percent'] = $discountPercent;
+                        $notes['discount_percent'] = round($itemDiscountPercent, 2);
 
                         $projectComponent->update([
                             'quantity' => $quantity,
                             'notes' => empty($notes) ? null : json_encode($notes),
                         ]);
                     }
+                }
+            }
+
+            if ($discountScope === 'lumpsum') {
+                if ($discountType === 'percent') {
+                    $discountTotal = $subtotal * ($quoteDiscountValue / 100);
+                } else {
+                    $discountTotal = min($quoteDiscountValue, $subtotal);
                 }
             }
 
@@ -620,6 +697,9 @@ class QuoteController extends Controller
                 'date_needed' => $validated['date_needed'] ?? null,
                 'subtotal' => round($subtotal, 2),
                 'discount_total' => round($discountTotal, 2),
+                'discount_scope' => $discountScope,
+                'discount_type' => $discountType,
+                'discount_value' => $discountScope === 'lumpsum' ? round($quoteDiscountValue, 2) : null,
                 'tax_rate' => round($taxRate, 2),
                 'tax_amount' => round($taxAmount, 2),
                 'total_amount' => round($totalAmount, 2),
@@ -664,8 +744,9 @@ class QuoteController extends Controller
      */
     public function destroy($id)
     {
-        $quote = Quote::findOrFail($id);
+        $quote = Quote::with(['createdByUser'])->findOrFail($id);
         $this->enforceOwnQuoteForClientStaff(request()->user(), $quote);
+        $this->enforceAdminCannotAccessClientDraft(request()->user(), $quote);
         if (Quote::normalizeStatus($quote->status) === Quote::STATUS_APPROVED) {
             abort(403, 'Approved RFQs can no longer be deleted.');
         }
@@ -694,8 +775,9 @@ class QuoteController extends Controller
             'status_note' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $quote = Quote::findOrFail($id);
+        $quote = Quote::with(['createdByUser'])->findOrFail($id);
         $this->enforceOwnQuoteForClientStaff($currentUser, $quote);
+        $this->enforceAdminCannotAccessClientDraft($currentUser, $quote);
         $fromStatus = Quote::normalizeStatus($quote->status);
         $toStatus = Quote::normalizeStatus($validated['status']);
 
@@ -920,6 +1002,22 @@ class QuoteController extends Controller
 
         if (in_array($currentUser->normalizedRole(), [User::ROLE_CLIENT, User::ROLE_STAFF], true)) {
             abort_unless((int) $quote->created_by === (int) $currentUser->id, 403, 'You can only access your own RFQ.');
+        }
+    }
+
+    private function enforceAdminCannotAccessClientDraft(?User $currentUser, Quote $quote): void
+    {
+        if (! $currentUser) {
+            return;
+        }
+
+        if (in_array($currentUser->normalizedRole(), [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true)) {
+            if (Quote::normalizeStatus($quote->status) === Quote::STATUS_DRAFT) {
+                $creatorRole = $quote->createdByUser?->normalizedRole();
+                if (!in_array($creatorRole, [User::ROLE_SUPERADMIN, User::ROLE_ADMIN], true)) {
+                    abort(403, 'You cannot access a client\'s draft RFQ until it is submitted.');
+                }
+            }
         }
     }
 

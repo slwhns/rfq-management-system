@@ -17,6 +17,8 @@ class QuoteItem extends Model
         'quantity',
         'unit_price',
         'discount_percent',
+        'discount_type',
+        'discount_value',
         'line_total'
     ];
 

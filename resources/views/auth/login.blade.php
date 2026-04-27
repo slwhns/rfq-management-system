@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>QS Smart Data Center Login</title>
+    <title>RFQ Management System Login</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('css/auth-login.css') }}">
 </head>
@@ -13,9 +13,9 @@
             <div class="auth-card">
                 <div class="auth-brand-wrap">
                     <div class="auth-brand-logo">
-                        <img src="{{ asset('images/system-logo.svg') }}" alt="QS Logo">
+                        <img src="{{ asset('images/system-logo.svg') }}" alt="RFQ Management System Logo">
                     </div>
-                    <p class="auth-brand-title">QS Smart DC</p>
+                    <p class="auth-brand-title">RFQ Management System</p>
                     <p class="auth-brand-subtitle">Pricing System</p>
                 </div>
 
@@ -59,7 +59,7 @@
         </section>
 
         <section class="auth-right" aria-hidden="true">
-            <div class="auth-right-caption">QS Smart Data Center</div>
+            <div class="auth-right-caption">RFQ Management System</div>
         </section>
     </main>
 </body>
