@@ -69,7 +69,7 @@
     <div class="bg-white5 pd-15 br-10 box-shadow-basic mg-b-20" style="border:1px solid #f9c8c8;">
         <div class="fw-bold mg-b-8" style="color:#bf2f2f;">RFQ Rejected</div>
         <div class="fs-12 clr-grey1 mg-b-10">Review the reason below, then click "Re-issue RFQ" to create a new RFQ version for editing and resubmission.</div>
-        <div class="fs-12 pd-10 br-5" style="background:#fff5f5; border:1px solid #ffd9d9; white-space:pre-wrap; word-break:break-word;">
+        <div class="fs-12 pd-10 br-5" style="background:#fff5f5; border:1px solid #ffd9d9; color: #000; white-space:pre-wrap; word-break:break-word;">
             {{ !empty($quote->admin_notes) ? $quote->admin_notes : 'No rejection reason provided by admin.' }}
         </div>
     </div>

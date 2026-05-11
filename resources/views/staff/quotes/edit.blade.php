@@ -4,7 +4,7 @@
 <div class="bg-white5 pd-15 bdr-bottom-22 mg-b-20">
     <div class="d-flex jc-between ai-center">
         <div class="fs-15 fw-bold">Edit Request for Quotation (RFQ) - {{ $quote->quote_number }}</div>
-        <a href="{{ route('rfqs.show', $quote->id) }}" class="fs-12 clr-blue txt-none">Back to RFQ</a>
+        <a href="{{ route('rfqs.show', $quote->id) }}" class="fs-12 clr-white txt-underline">Back to RFQ</a>
     </div>
 </div>
 
@@ -90,7 +90,7 @@
     </table>
 
     <div class="d-flex jc-end mg-t-20" style="gap:10px;">
-        <a href="{{ route('rfqs.index') }}" class="pd-10 br-5 txt-none" style="border:1px solid #d0d0d0; color:#555;">Cancel</a>
+        <a href="{{ route('rfqs.index') }}" class="pd-10 br-5 txt-none" style="border:1px solid #d0d0d0; color:white;">Cancel</a>
         <button type="submit" class="bg-blue clr-white pd-10 br-5 cursor-pointer" style="border:0;">Save Changes</button>
     </div>
 </form>

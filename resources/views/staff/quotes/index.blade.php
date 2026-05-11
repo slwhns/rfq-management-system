@@ -2,12 +2,16 @@
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('css/quotes-index.css') }}">
-<div class="bg-white5 pd-15 bdr-bottom-22 mg-b-20">
-    <div class="d-flex jc-between ai-center">
-        <div class="fs-15 fw-bold">Request for Quotation (RFQ)</div>
+{{-- Page Title --}}
+<div class="dash-title-wrap mg-b-20">
+    <div class="d-flex fd-column ai-center jc-center gap-8 txt-center">
+        <div class="d-flex ai-center gap-10 jc-center">
+            <span class="dash-greeting-emoji">📄</span>
+            <div class="dash-greeting-text">Request for Quotation (RFQ)</div>
+        </div>
+        <div class="dash-greeting-sub">View and manage your RFQs</div>
     </div>
 </div>
-
 @if($errors->any())
     <div class="bg-white5 pd-15 br-10 mg-b-15" style="border:1px solid #f0b3b3;">
         @foreach($errors->all() as $error)
@@ -17,39 +21,42 @@
 @endif
 
 <div id="quotes-page-staff" class="d-grid gap-20" style="grid-template-columns: 1fr;">
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="d-flex jc-between ai-center mg-b-15">
+    <div class="dash-table-card">
+        <div class="dash-table-header">
             <div>
-                <div class="fw-bold">RFQ List</div>
-                <div class="fs-12 clr-grey1 mg-t-5">{{ $quoteListSubtitle ?? 'All generated RFQs.' }}</div>
+                <div class="dash-table-title">RFQ List</div>
+                <div class="dash-table-subtitle">{{ $quoteListSubtitle ?? 'All generated RFQs.' }}</div>
             </div>
             <div class="d-flex ai-center" style="gap: 10px;">
                 <form id="quote-filter-form" method="GET" action="{{ route('rfqs.index') }}" class="d-flex ai-center" style="gap: 8px;">
-                    <label for="quote-status-filter" class="fs-12 clr-grey1">Filter</label>
-                    <select id="quote-status-filter" name="status" class="pd-6 bdr-all-22 br-5 fs-12" style="border:1px solid #d9d9d9;">
+                    <label for="quote-status-filter" class="fs-12 clr-plt2">Filter</label>
+                    <select id="quote-status-filter" name="status" class="rfq-filter-input pd-6 br-5 fs-12">
                         @foreach(($filterOptions ?? []) as $statusValue => $statusLabel)
                             <option value="{{ $statusValue }}" {{ ($selectedStatus ?? '') === $statusValue ? 'selected' : '' }}>{{ $statusLabel }}</option>
                         @endforeach
                     </select>
-                    <input id="quote-project-search" type="text" name="project" value="{{ $projectSearch ?? '' }}" placeholder="Search project" class="pd-6 bdr-all-22 br-5 fs-12" style="border:1px solid #d9d9d9; min-width:160px;">
-                    <button type="button" id="quote-filter-reset" class="pd-6 br-5 fs-12 cursor-pointer" style="border:1px solid #b87f13; background:#d9a628; color:#ffffff;">Reset</button>
+                    <input id="quote-project-search" type="text" name="project" value="{{ $projectSearch ?? '' }}" placeholder="Search project" class="rfq-filter-input pd-6 br-5 fs-12" style="min-width:160px;">
+                    <button type="button" id="quote-filter-reset" class="rfq-filter-btn-reset pd-6 br-5 fs-12">Reset</button>
                 </form>
             </div>
         </div>
 
         @if($quotes->count() === 0)
-            <div class="pd-20 fs-13 clr-grey1">No RFQs generated yet.</div>
+            <div class="dash-empty-state">
+                <i class="ri-file-list-line"></i>
+                <div>No RFQs generated yet.</div>
+            </div>
         @else
-            <div class="of-auto" style="max-height: 520px; overflow-y: auto;">
-                <table style="width:100%; border-collapse: collapse; min-width: 920px;">
+            <div class="of-auto sbar-h-none" style="max-height: 520px; overflow-y: auto; padding-right: 2px;">
+                <table class="dash-table">
                     <thead>
-                        <tr style="border-bottom:1px solid #d8d8d8;">
-                            <th style="text-align:left; padding:12px 8px;">Quote</th>
-                            <th style="text-align:left; padding:12px 8px;">Project Name</th>
-                            <th style="text-align:left; padding:12px 8px;">Project Title</th>
-                            <th style="text-align:left; padding:12px 8px;">Date</th>
-                            <th style="text-align:center; padding:12px 8px; width:170px;">Status</th>
-                            <th style="text-align:center; padding:12px 8px;">Action</th>
+                        <tr>
+                            <th>Quote</th>
+                            <th>Project Name</th>
+                            <th>Project Title</th>
+                            <th>Date</th>
+                            <th style="text-align:center; width:140px;">Status</th>
+                            <th style="text-align:center; width:120px;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,32 +65,35 @@
                                 $projectName = trim((string) ($quote->project->project_name ?? ''));
                                 $projectTitle = trim((string) ($quote->project->project_title ?? ''));
                             @endphp
-                            <tr style="border-bottom:1px solid #ececec;">
-                                <td style="padding:10px 8px;">
-                                    <a href="{{ route('rfqs.show', $quote->id) }}" style="color:#2f55c7; text-decoration:underline;">{{ $quote->quote_number }}</a>
+                            <tr>
+                                <td>
+                                    <a href="{{ route('rfqs.show', $quote->id) }}" class="dash-review-link">{{ $quote->quote_number }}</a>
                                 </td>
-                                <td style="padding:10px 8px;">
-                                    <a href="{{ route('rfqs.show', $quote->id) }}" style="color:#2f55c7; text-decoration:underline;">{{ $projectName !== '' ? $projectName : '-' }}</a>
-                                </td>
-                                <td style="padding:10px 8px;">
-                                    <a href="{{ route('rfqs.show', $quote->id) }}" style="color:#2f55c7; text-decoration:underline;">{{ $projectTitle !== '' ? $projectTitle : '-' }}</a>
-                                </td>
-                                <td style="padding:10px 8px;">{{ optional($quote->created_at)->format('d M Y') }}</td>
-                                <td style="padding:10px 8px; text-align:center;">
+                                <td>{{ $projectName !== '' ? $projectName : '-' }}</td>
+                                <td>{{ $projectTitle !== '' ? $projectTitle : '-' }}</td>
+                                <td>{{ optional($quote->created_at)->format('d M Y') }}</td>
+                                <td style="text-align:center;">
                                     @php
                                         $normalizedStatus = \App\Models\Quote::normalizeStatus($quote->status);
-                                        $statusStyle = $statusStyles[$normalizedStatus] ?? ['background' => '#f5f5f5', 'color' => '#4d4d4d', 'border' => '#dddddd'];
+                                        $statusClass = 'dash-priority-blue';
+                                        if ($normalizedStatus === \App\Models\Quote::STATUS_APPROVED) {
+                                            $statusClass = 'dash-priority-green';
+                                        } elseif ($normalizedStatus === \App\Models\Quote::STATUS_DECLINED) {
+                                            $statusClass = 'dash-priority-red';
+                                        } elseif ($normalizedStatus === \App\Models\Quote::STATUS_DRAFT || $normalizedStatus === \App\Models\Quote::STATUS_CANCELLED) {
+                                            $statusClass = 'dash-priority-gray';
+                                        }
                                     @endphp
-                                    <span class="fs-11 fw-bold pd-6 br-5" style="display:inline-block; background: {{ $statusStyle['background'] }}; color: {{ $statusStyle['color'] }}; border:1px solid {{ $statusStyle['border'] }};">
+                                    <span class="dash-priority-badge {{ $statusClass }}">
                                         {{ $statusOptions[$normalizedStatus] ?? ucfirst(str_replace('_', ' ', $normalizedStatus)) }}
                                     </span>
                                 </td>
-                                <td style="padding:10px 8px; text-align:center;">
+                                <td style="text-align:center;">
                                     <div class="d-flex ai-center jc-center" style="gap:6px; flex-wrap:wrap;">
                                         @if($normalizedStatus === \App\Models\Quote::STATUS_DRAFT)
                                             <form action="{{ route('rfqs.submit', $quote->id) }}" method="POST" data-no-spa="true" style="display:inline; margin:0; padding:0;">
                                                 @csrf
-                                                <button type="submit" class="quote-action-btn action-send txt-none d-flex ai-center jc-center" title="Send RFQ" aria-label="Send RFQ to admin" style="width:30px; height:30px; border:1px solid #1f8a4c; color:#1f8a4c; border-radius:6px; background:none; cursor:pointer;">
+                                                <button type="submit" class="dash-review-link" title="Send RFQ" aria-label="Send RFQ to admin" style="padding: 4px 8px; font-size: 14px; cursor: pointer; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--plt2);">
                                                     <i class="ri-send-plane-line"></i>
                                                 </button>
                                             </form>
@@ -92,10 +102,10 @@
                                             $canEditOrDelete = in_array($normalizedStatus, [\App\Models\Quote::STATUS_DRAFT, \App\Models\Quote::STATUS_CANCELLED], true);
                                         @endphp
                                         @if($canEditOrDelete)
-                                            <a href="{{ route('rfqs.edit', $quote->id) }}" class="quote-action-btn action-edit txt-none d-flex ai-center jc-center" title="Edit" aria-label="Edit quote" style="width:30px; height:30px; border:1px solid #4b5563; color:#4b5563; border-radius:6px;">
+                                            <a href="{{ route('rfqs.edit', $quote->id) }}" class="dash-review-link" title="Edit" aria-label="Edit quote" style="padding: 4px 8px; font-size: 14px; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--plt2);">
                                                 <i class="ri-edit-line"></i>
                                             </a>
-                                            <a href="{{ route('rfqs.destroy', $quote->id) }}" class="quote-action-btn action-delete txt-none d-flex ai-center jc-center" title="Delete" aria-label="Delete quote" style="width:30px; height:30px; border:1px solid #bf2f2f; color:#bf2f2f; border-radius:6px;" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this quote?')) { document.getElementById('delete-form-{{ $quote->id }}').submit(); }">
+                                            <a href="{{ route('rfqs.destroy', $quote->id) }}" class="dash-review-link" title="Delete" aria-label="Delete quote" style="padding: 4px 8px; font-size: 14px; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--plt2);" onclick="event.preventDefault(); if(confirm('Are you sure you want to delete this quote?')) { document.getElementById('delete-form-{{ $quote->id }}').submit(); }">
                                                 <i class="ri-delete-bin-line"></i>
                                             </a>
                                         @endif

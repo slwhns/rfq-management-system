@@ -1,9 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-white5 pd-15 bdr-bottom-22 mg-b-20">
-    <div class="fs-15 fw-bold mg-b-5">Suppliers</div>
-    <div class="fs-12 clr-grey1">Follow the numbered steps below to manage your suppliers: 1. Add a company, 2. Create categories, and 3. Add item details.</div>
+<div class="supplier-page">
+<div class="dash-title-wrap mg-b-20">
+    <div class="d-flex fd-column ai-center jc-center gap-8 txt-center">
+        <div class="d-flex ai-center gap-10 jc-center">
+            <span class="dash-greeting-emoji"><i class="ri-building-2-line"></i></span>
+            <div class="dash-greeting-text">Suppliers</div>
+        </div>
+        <div class="dash-greeting-sub">Follow the numbered steps below: 1. Add a company, 2. Create categories, and 3. Add item details.</div>
+    </div>
 </div>
 
 <div class="d-grid gap-20" style="grid-template-columns: 360px 1fr;">
@@ -13,7 +19,7 @@
                 <div class="fw-bold d-flex ai-center"><span class="bg-blue clr-white d-flex jc-center ai-center mg-r-10" style="width: 22px; height: 22px; border-radius: 50%; font-size: 12px;">1</span> Supplier Companies</div>
                 <button type="button" id="create-supplier-btn" class="bg-blue clr-white pd-8 br-5 cursor-pointer fs-12" style="border: 0;">+ Add Company</button>
             </div>
-            <div class="fs-12 clr-grey1 mg-b-10">Select a company to view available items.</div>
+            <div class="fs-12 clr-grey1 mg-b-10">Step 1: Add or select a supplier company to view available items.</div>
             <div style="max-height: 320px; overflow-y: auto;">
                 <ul id="supplier-list" class="br-5 of-hidden list-style-none pd-0 mg-0"></ul>
             </div>
@@ -24,7 +30,7 @@
                 <div class="fw-bold d-flex ai-center"><span class="bg-blue clr-white d-flex jc-center ai-center mg-r-10" style="width: 22px; height: 22px; border-radius: 50%; font-size: 12px;">2</span> Categories</div>
                 <button type="button" id="create-supplier-category-btn" class="bg-blue clr-white pd-8 br-5 cursor-pointer fs-12" style="border: 0;">+ Add Category</button>
             </div>
-            <div class="fs-12 clr-grey1 mg-b-10">Use categories to filter and manage supplier items.</div>
+            <div class="fs-12 clr-grey1 mg-b-10">Step 2: Create categories to organize and filter supplier items.</div>
             <div style="max-height: 320px; overflow-y: auto;">
                 <ul id="supplier-category-list" class="br-5 of-hidden list-style-none pd-0 mg-0"></ul>
             </div>
@@ -38,7 +44,7 @@
                 <button type="button" id="create-supplier-item-btn" class="bg-blue clr-white pd-8 br-5 cursor-pointer fs-12" style="border: 0;">+ Add Item</button>
             </div>
         </div>
-        <div class="fs-12 clr-grey1 mg-b-10" id="supplier-items-description">Select a company to view all assigned items.</div>
+        <div class="fs-12 clr-grey1 mg-b-10" id="supplier-items-description">Step 3: Add item details after selecting a company.</div>
         <div class="d-grid gap-25 mg-b-10" style="grid-template-columns: 1.2fr 1fr auto;">
             <input id="supplier-item-search" class="pd-10 bdr-all-22 br-20 w-100" type="text" placeholder="Search item by name, SKU, description, unit, price, subscription...">
             <select id="supplier-item-filter-category" class="pd-10 bdr-all-22 br-5 w-100">
@@ -229,5 +235,5 @@
     </div>
 </div>
 
+</div>
 @endsection
-

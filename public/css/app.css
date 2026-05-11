@@ -258,78 +258,6 @@ body { padding:0px; margin:0px;
 
 .clr-plt1-hv:hover {color: var(--plt1);}
 .clr-plt2-hv:hover {color: var(--plt2);}
-
-.qs-pagination-wrap {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 10px 0 2px;
-}
-
-.qs-pagination-meta {
-    color: #707a8a;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.qs-pagination-list {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-}
-
-.qs-pagination-link {
-    min-width: 34px;
-    height: 34px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #d5def2;
-    background: #ffffff;
-    color: #334155;
-    text-decoration: none;
-    border-radius: 8px;
-    padding: 0 10px;
-    font-size: 12px;
-    font-weight: 700;
-    transition: all 0.2s ease;
-}
-
-.qs-pagination-link:hover {
-    border-color: #3d39a9;
-    color: #3d39a9;
-    background: #f5f4ff;
-}
-
-.qs-pagination-link.is-active {
-    border-color: #3d39a9;
-    background: #3d39a9;
-    color: #ffffff;
-}
-
-.qs-pagination-link.is-disabled {
-    border-color: #e5e7eb;
-    color: #6b7280;
-    background: #f9fafb;
-    pointer-events: none;
-}
-
-@media (max-width: 640px) {
-    .qs-pagination-wrap {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .qs-pagination-list {
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-}
 .clr-plt3-hv:hover {color: var(--plt3);}
 .clr-plt4-hv:hover {color: var(--plt4);}
 .clr-plt5-hv:hover {color: var(--plt5);}
@@ -429,6 +357,7 @@ body { padding:0px; margin:0px;
 
 .f-shrink-0 {flex-shrink: 0;}
 .fw-wrap {flex-wrap:wrap; }
+.fw-wrap-reverse {flex-wrap:wrap-reverse; }
 
 /*      Justify Content      */
 .jc-start { justify-content: flex-start;}
@@ -536,7 +465,6 @@ body { padding:0px; margin:0px;
 .bg-white4-hv:hover {background-color: var(--white4);}
 .bg-white4-5-hv:hover {background-color: var(--white4-5);}
 .bg-white5-hv:hover {background-color: var(--white5);}
-
 
 .bg-green-dark-hv:hover { background-color: #006400;}
 .bg-light-green-dark-hv:hover { background-color: #44a82a;}
@@ -1127,6 +1055,78 @@ body { padding:0px; margin:0px;
 .h-2 {height: 2px;}
 .h-3 {height: 3px;}
 
+.qs-pagination-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 0 2px;
+}
+
+.qs-pagination-meta {
+    color: #707a8a;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.qs-pagination-list {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+}
+
+.qs-pagination-link {
+    min-width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d5def2;
+    background: #ffffff;
+    color: #334155;
+    text-decoration: none;
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.qs-pagination-link:hover {
+    border-color: #3d39a9;
+    color: #3d39a9;
+    background: #f5f4ff;
+}
+
+.qs-pagination-link.is-active {
+    border-color: #3d39a9;
+    background: #3d39a9;
+    color: #ffffff;
+}
+
+.qs-pagination-link.is-disabled {
+    border-color: #e5e7eb;
+    color: #6b7280;
+    background: #f9fafb;
+    pointer-events: none;
+}
+
+@media (max-width: 640px) {
+    .qs-pagination-wrap {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .qs-pagination-list {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
 /* =========================================================
    App Theme (HR-style inspired)
    ========================================================= */
@@ -1143,7 +1143,7 @@ body.app-theme {
 .app-sidebar {
     width: 74px;
     min-height: 100vh;
-    background: #142542;
+    background: #222222;
     border-right: 1px solid #00000022;
     transition: width 0.2s ease;
 }

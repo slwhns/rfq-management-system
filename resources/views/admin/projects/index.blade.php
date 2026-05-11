@@ -1,100 +1,103 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-white5 pd-15 bdr-bottom-22 mg-b-20">
-    <div class="fs-15 fw-bold">Projects</div>
+
+{{-- Page Title --}}
+<div class="dash-title-wrap mg-b-20">
+    <div class="d-flex fd-column ai-center jc-center gap-8 txt-center">
+        <div class="d-flex ai-center gap-10 jc-center">
+            <span class="dash-greeting-emoji">◎</span>
+            <div class="dash-greeting-text">Projects & Pricing</div>
+        </div>
+        <div class="dash-greeting-sub">Manage and configure projects, items, and generate RFQs</div>
+    </div>
 </div>
 
-<div class="d-grid gap-20 mg-b-20" style="grid-template-columns: 1fr;">
-    <button type="button" class="bg-blue clr-white pd-10 br-5 cursor-pointer" style="border: 0;" onclick="openAddProjectModal()">+ Add Project</button>
-</div>
-
+{{-- Top Row: Project Select + Pricing Summary --}}
 <div class="d-grid gap-20 mg-b-20" style="grid-template-columns: 1.2fr 1fr;">
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="d-flex jc-between ai-center mg-b-10">
-            <div class="fw-bold">Select Project</div>
-            <button
-                type="button"
-                class="fs-12 clr-blue cursor-pointer"
-                style="border: 0; background: transparent; text-decoration: underline; padding: 0;"
-                onclick="openProjectManagerModal()"
-            >
+
+    {{-- Project Selector --}}
+    <div class="dash-table-card">
+        <div class="dash-table-header">
+            <div class="dash-table-title">Select Project</div>
+            <button type="button" class="proj-text-btn" onclick="openProjectManagerModal()">
                 Manage Projects
             </button>
         </div>
-
-        <select id="project-select" class="pd-10 bdr-all-22 br-5 mg-b-10" style="width: 100%;">
+        <select id="project-select" class="rfq-filter-input w-100 mg-b-10">
             <option value="">Loading projects...</option>
         </select>
-
-        <div id="pricing-selected-project-name" class="fs-12 clr-grey1">No project selected</div>
+        <div id="pricing-selected-project-name" class="fs-12 clr-plt2">No project selected</div>
     </div>
 
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="fw-bold mg-b-10">Pricing Summary</div>
-
-        <div class="mg-b-10">Subtotal: <span id="subtotal">RM0</span></div>
-        <div class="mg-b-10">Tax: <span id="tax">RM0</span></div>
-        <div class="mg-b-10">Total: <span id="total">RM0</span></div>
-
-        <div class="d-flex mg-t-20">
-            <button type="button" class="bg-blue clr-white pd-10 br-5 mg-r-10 cursor-pointer" style="border: 0;" onclick="calculatePrice()">
+    {{-- Pricing Summary --}}
+    <div class="dash-table-card">
+        <div class="dash-table-header">
+            <div class="dash-table-title">Pricing Summary</div>
+        </div>
+        <div class="proj-summary-row">
+            <span class="proj-summary-label">Subtotal</span>
+            <span id="subtotal" class="proj-summary-value">RM0</span>
+        </div>
+        <div class="proj-summary-row">
+            <span class="proj-summary-label">Tax</span>
+            <span id="tax" class="proj-summary-value">RM0</span>
+        </div>
+        <div class="proj-summary-row proj-summary-total">
+            <span class="proj-summary-label">Total</span>
+            <span id="total" class="proj-summary-value">RM0</span>
+        </div>
+        <div class="d-flex gap-10 mg-t-16">
+            <button type="button" class="rfq-filter-btn-apply" onclick="calculatePrice()">
                 Calculate
             </button>
-            <button type="button" class="bg-green clr-white pd-10 br-5 cursor-pointer" style="border: 0;" onclick="generateQuote()">
+            <button type="button" class="proj-btn-generate" onclick="generateQuote()">
                 Generate RFQ
             </button>
         </div>
     </div>
+
 </div>
 
+{{-- Bottom Row: Item Details + Selected Items --}}
 <div class="d-grid gap-20 mg-b-20" style="grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr); align-items: start;">
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="d-flex ai-center jc-between pd-10 fw-bold">
-            <div>Item Details</div>
-        </div>
 
-        <div class="d-grid gap-10 pd-10 mg-b-10" style="grid-template-columns: minmax(0, 1fr) 220px 110px; align-items: center;">
-            <input
-                id="component-search"
-                class="pd-10 bdr-all-22 br-5"
-                type="text"
-                placeholder="Search by name, SKU, description, supplier"
-            >
+    {{-- Item Catalog --}}
+    <div class="dash-table-card">
+        <div class="dash-table-title mg-b-12">Item Details</div>
 
-            <select id="component-filter" class="pd-10 bdr-all-22 br-5">
+        <div class="d-grid gap-10 mg-b-12" style="grid-template-columns: minmax(0, 1fr) 220px 110px; align-items: center;">
+            <input id="component-search" class="rfq-filter-input" type="text"
+                placeholder="Search by name, SKU, description, supplier">
+            <select id="component-filter" class="rfq-filter-input">
                 <option value="">Loading categories...</option>
             </select>
-
-            <button
-                id="component-clear"
-                type="button"
-                class="bg-white5 clr-black1 pd-10 br-5 cursor-pointer"
-                style="border: 1px solid #d9d9d9;"
-            >
+            <button id="component-clear" type="button" class="rfq-filter-btn-reset">
                 Clear
             </button>
         </div>
 
-        <div id="components" class="pd-10" data-mode="pricing"></div>
-        <div id="components-pagination" class="d-flex jc-between ai-center pd-10 fs-12 clr-grey1"></div>
+        <div id="components" data-mode="pricing"></div>
+        <div id="components-pagination" class="d-flex jc-between ai-center pd-10 fs-12" style="color: var(--plt2);"></div>
     </div>
 
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic h-mc">
+    {{-- Selected Items --}}
+    <div class="dash-table-card h-mc">
         <div class="d-flex jc-between ai-center mg-b-10">
-            <div class="fw-bold">Selected Items</div>
-            <div class="fs-12 clr-grey1">By selected project</div>
+            <div class="dash-table-title">Selected Items</div>
+            <div class="fs-12" style="color: var(--plt2);">By selected project</div>
         </div>
-
         <div id="pricing-selected-components" class="br-10 of-hidden"></div>
     </div>
+
 </div>
 
-<!-- Manage Projects Modal -->
+{{-- Manage Projects Modal --}}
 <div id="project-manager-modal" class="modal-dialog" style="max-width: 760px;">
     <div class="modal-content">
         <div class="modal-header">
             <h3>Manage Projects</h3>
+            <button class="modal-close" onclick="closeAllModals()">×</button>
         </div>
         <div class="modal-body">
             <div id="project-manager-list" class="pd-10"></div>
@@ -106,10 +109,10 @@
     </div>
 </div>
 
-<!-- Modal Overlay -->
+{{-- Modal Overlay --}}
 <button type="button" id="modal-overlay" class="modal-overlay" onclick="closeAllModals()" aria-label="Close modal"></button>
 
-<!-- Add/Edit Project Modal -->
+{{-- Add / Edit Project Modal --}}
 <div id="project-modal" class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
@@ -119,28 +122,28 @@
         <div class="modal-body">
             <div class="d-grid gap-15">
                 <div>
-                    <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-project-name">Project Name *</label>
-                    <input id="modal-project-name" class="pd-10 bdr-all-22 br-5 w-100" type="text" placeholder="e.g. Smart Campus DC Upgrade">
+                    <label class="modal-field-label" for="modal-project-name">Project Name *</label>
+                    <input id="modal-project-name" class="modal-field-input pd-10 br-5 w-100" type="text" placeholder="e.g. Smart Campus DC Upgrade">
                 </div>
                 <div>
-                    <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-project-title">Project Title *</label>
-                    <input id="modal-project-title" class="pd-10 bdr-all-22 br-5 w-100" type="text" placeholder="e.g. Smart Data Center Upgrade Phase 2">
+                    <label class="modal-field-label" for="modal-project-title">Project Title *</label>
+                    <input id="modal-project-title" class="modal-field-input pd-10 br-5 w-100" type="text" placeholder="e.g. Smart Data Center Upgrade Phase 2">
                 </div>
                 <div>
-                    <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-project-location">Location</label>
-                    <input id="modal-project-location" class="pd-10 bdr-all-22 br-5 w-100" type="text" placeholder="e.g. Kuala Lumpur">
+                    <label class="modal-field-label" for="modal-project-location">Location</label>
+                    <input id="modal-project-location" class="modal-field-input pd-10 br-5 w-100" type="text" placeholder="e.g. Kuala Lumpur">
                 </div>
                 <div>
-                    <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-project-type">Project Type *</label>
-                    <select id="modal-project-type" class="pd-10 bdr-all-22 br-5 w-100">
+                    <label class="modal-field-label" for="modal-project-type">Project Type *</label>
+                    <select id="modal-project-type" class="modal-field-input pd-10 br-5 w-100">
                         <option value="new">New</option>
                         <option value="retrofit">Retrofit</option>
                         <option value="expansion">Expansion</option>
                     </select>
                 </div>
                 <div>
-                    <label class="fs-12 fw-bold mg-b-5 d-block" for="modal-project-tax-rate">Tax Rate (%)</label>
-                    <input id="modal-project-tax-rate" class="pd-10 bdr-all-22 br-5 w-100" type="number" min="0" max="100" step="0.01" value="10.00" placeholder="e.g. 10">
+                    <label class="modal-field-label" for="modal-project-tax-rate">Tax Rate (%)</label>
+                    <input id="modal-project-tax-rate" class="modal-field-input pd-10 br-5 w-100" type="number" min="0" max="100" step="0.01" value="10.00" placeholder="e.g. 10">
                 </div>
             </div>
         </div>
@@ -151,7 +154,7 @@
     </div>
 </div>
 
-<!-- Edit Project Component Modal -->
+{{-- Edit Project Component Modal --}}
 <div id="project-component-modal" class="modal-dialog" style="max-width: 520px;">
     <div class="modal-content">
         <div class="modal-header">
@@ -160,17 +163,17 @@
         </div>
         <div class="modal-body">
             <div class="d-grid gap-15">
-                <div class="pd-10 bg-white5 br-5">
+                <div class="proj-item-info-card">
                     <div class="fw-bold" id="project-component-modal-name">-</div>
-                    <div class="fs-12 clr-grey1">SKU: <span id="project-component-modal-code">-</span></div>
+                    <div class="fs-12" style="color: var(--plt2);">SKU: <span id="project-component-modal-code">-</span></div>
                 </div>
                 <div>
-                    <label class="fs-12 fw-bold mg-b-5 d-block" for="project-component-modal-quantity">Quantity *</label>
-                    <input id="project-component-modal-quantity" class="pd-10 bdr-all-22 br-5 w-100" type="number" min="1" step="1" placeholder="Enter quantity">
+                    <label class="modal-field-label" for="project-component-modal-quantity">Quantity *</label>
+                    <input id="project-component-modal-quantity" class="modal-field-input pd-10 br-5 w-100" type="number" min="1" step="1" placeholder="Enter quantity">
                 </div>
                 <div>
-                    <label class="fs-12 fw-bold mg-b-5 d-block" for="project-component-modal-discount">Discount Level</label>
-                    <select id="project-component-modal-discount" class="pd-10 bdr-all-22 br-5 w-100">
+                    <label class="modal-field-label" for="project-component-modal-discount">Discount Level</label>
+                    <select id="project-component-modal-discount" class="modal-field-input pd-10 br-5 w-100">
                         <option value="0">No Discount</option>
                         <option value="5">5%</option>
                         <option value="10">10%</option>
@@ -186,7 +189,7 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+{{-- Delete Confirmation Modal --}}
 <div id="delete-modal" class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
@@ -194,7 +197,7 @@
             <button class="modal-close" onclick="closeAllModals()">×</button>
         </div>
         <div class="modal-body">
-            <p id="delete-modal-message">Are you sure you want to delete this project?</p>
+            <p id="delete-modal-message" style="color: var(--white2);">Are you sure you want to delete this project?</p>
         </div>
         <div class="modal-footer">
             <button class="btn-secondary" onclick="closeAllModals()">Cancel</button>
@@ -204,4 +207,3 @@
 </div>
 
 @endsection
-

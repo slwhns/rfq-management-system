@@ -2,46 +2,78 @@
 
 @section('content')
 
-<div class="bg-white5 pd-15 bdr-bottom-22 mg-b-20">
-    <div class="fs-15 fw-bold">Dashboard</div>
-</div>
-
-<div class="d-grid gap-20" style="grid-template-columns: repeat(2, minmax(220px, 1fr));">
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="fs-12 clr-grey1 mg-b-5">RFQs Need Review</div>
-        <div class="fs-25 fw-bold">{{ $pendingReviewCount ?? ($pendingReviewPrs ?? collect())->count() }}</div>
-        <div class="fs-11 clr-grey1 mg-t-5">Sorted by nearest date needed</div>
-    </div>
-
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="fs-12 clr-grey1 mg-b-5">RFQs Approved</div>
-        <div class="fs-25 fw-bold">{{ $approvedQuoteCount ?? 0 }}</div>
-        <div class="fs-11 clr-grey1 mg-t-5">Approved RFQs in total</div>
-    </div>
-</div>
-
-<div class="bg-white5 pd-20 br-10 box-shadow-basic mg-t-20">
-    <div class="d-flex jc-between ai-center mg-b-12" style="gap:10px; flex-wrap:wrap;">
-        <div>
-            <div class="fw-bold">RFQs Need Review &amp; Approval</div>
+{{-- ═══════════════════════════════════════════
+     PART 1 — PAGE TITLE
+═══════════════════════════════════════════ --}}
+<div class="dash-title-wrap mg-b-20">
+    <div class="d-flex fd-column ai-center jc-center gap-8 txt-center">
+        <div class="d-flex ai-center gap-10 jc-center">
+            <span class="dash-greeting-emoji">👋</span>
+            <div class="dash-greeting-text">RFQ Management System</div>
         </div>
-        <div class="fs-12 fw-bold" style="color:#2f55c7;">{{ $pendingReviewCount ?? ($pendingReviewPrs ?? collect())->count() }} pending</div>
+        <div class="dash-greeting-sub">Welcome back, {{ auth()->user()->name ?? 'User' }}</div>
     </div>
+</div>
+
+{{-- ═══════════════════════════════════════════
+     PART 2 — STAT CARDS GRID
+═══════════════════════════════════════════ --}}
+<div class="d-grid gap-20 mg-b-20" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+
+    {{-- Card: RFQs Need Review --}}
+    <div class="dash-stat-card dash-stat-orange">
+        <div class="dash-stat-icon"><i class="ri-file-list-3-line"></i></div>
+        <div class="dash-stat-body">
+            <div class="dash-stat-label">RFQs Need Review</div>
+            <div class="dash-stat-value">{{ $pendingReviewCount ?? ($pendingReviewPrs ?? collect())->count() }}</div>
+            <div class="dash-stat-sub">Sorted by nearest date needed</div>
+        </div>
+    </div>
+
+    {{-- Card: RFQs Approved --}}
+    <div class="dash-stat-card dash-stat-green">
+        <div class="dash-stat-icon"><i class="ri-checkbox-circle-line"></i></div>
+        <div class="dash-stat-body">
+            <div class="dash-stat-label">RFQs Approved</div>
+            <div class="dash-stat-value">{{ $approvedQuoteCount ?? 0 }}</div>
+            <div class="dash-stat-sub">Approved RFQs in total</div>
+        </div>
+    </div>
+
+</div>
+
+{{-- ═══════════════════════════════════════════
+     PART 3 — PENDING RFQs TABLE
+═══════════════════════════════════════════ --}}
+<div class="dash-table-card">
+    <div class="dash-table-header">
+        <div>
+            <div class="dash-table-title">RFQs Pending Review & Approval</div>
+            <div class="dash-table-subtitle">Action required before deadline</div>
+        </div>
+        <span class="dash-badge-count">
+            {{ $pendingReviewCount ?? ($pendingReviewPrs ?? collect())->count() }} pending
+        </span>
+    </div>
+
     @if(($pendingReviewPrs ?? collect())->isEmpty())
-        <div class="fs-12 clr-grey1">No RFQs pending review.</div>
+        <div class="dash-empty-state">
+            <i class="ri-inbox-2-line"></i>
+            <div>No RFQs pending review.</div>
+        </div>
     @else
-        <div class="of-auto" style="max-height: 460px; overflow-y: auto; padding-right: 4px;">
-            <table style="width:100%; min-width:860px; border-collapse:collapse;">
+        <div class="of-auto" style="max-height: 480px; overflow-y: auto; padding-right: 2px;">
+            <table class="dash-table">
                 <thead>
-                    <tr style="border-bottom:1px solid #dfdfdf;">
-                        <th style="text-align:left; padding:10px 8px;">RFQ #</th>
-                        <th style="text-align:left; padding:10px 8px;">Project</th>
-                        <th style="text-align:left; padding:10px 8px;">Client</th>
-                        <th style="text-align:left; padding:10px 8px;">Date Needed</th>
-                        <th style="text-align:left; padding:10px 8px;">Priority</th>
-                        <th style="text-align:left; padding:10px 8px;">Status</th>
-                        <th style="text-align:left; padding:10px 8px;">Requested</th>
-                        <th style="text-align:center; padding:10px 8px;">Action</th>
+                    <tr>
+                        <th>RFQ #</th>
+                        <th>Project</th>
+                        <th>Client</th>
+                        <th>Date Needed</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Requested</th>
+                        <th style="text-align:center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,30 +82,30 @@
                             $dateNeeded = $pr->date_needed;
                             $daysToNeeded = $dateNeeded ? now()->startOfDay()->diffInDays($dateNeeded->copy()->startOfDay(), false) : null;
                             $priorityLabel = 'Upcoming';
-                            $priorityStyle = 'background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe;';
+                            $priorityClass = 'dash-priority-blue';
 
                             if ($daysToNeeded !== null) {
                                 if ($daysToNeeded < 0) {
                                     $priorityLabel = 'Overdue';
-                                    $priorityStyle = 'background:#fff1f1; color:#bf2f2f; border:1px solid #f5c2c2;';
+                                    $priorityClass = 'dash-priority-red';
                                 } elseif ($daysToNeeded <= 2) {
                                     $priorityLabel = 'Urgent';
-                                    $priorityStyle = 'background:#fff4e8; color:#b45309; border:1px solid #fed7aa;';
+                                    $priorityClass = 'dash-priority-orange';
                                 }
                             }
                         @endphp
-                        <tr style="border-bottom:1px solid #f1f1f1;">
-                            <td style="padding:10px 8px;">{{ $pr->quote_number }}</td>
-                            <td style="padding:10px 8px;">{{ $pr->project->project_name ?? '-' }}</td>
-                            <td style="padding:10px 8px;">{{ $pr->createdByUser->name ?? ($pr->createdByUser->email ?? '-') }}</td>
-                            <td style="padding:10px 8px;">{{ optional($dateNeeded)->format('d M Y') ?: '-' }}</td>
-                            <td style="padding:10px 8px;">
-                                <span class="fs-11 fw-bold pd-6 br-5" style="display:inline-block; {{ $priorityStyle }}">{{ $priorityLabel }}</span>
+                        <tr>
+                            <td class="fw-bold">{{ $pr->quote_number }}</td>
+                            <td>{{ $pr->project->project_name ?? '-' }}</td>
+                            <td>{{ $pr->createdByUser->name ?? ($pr->createdByUser->email ?? '-') }}</td>
+                            <td>{{ optional($dateNeeded)->format('d M Y') ?: '-' }}</td>
+                            <td>
+                                <span class="dash-priority-badge {{ $priorityClass }}">{{ $priorityLabel }}</span>
                             </td>
-                            <td style="padding:10px 8px;">{{ \App\Models\Quote::statusOptions()[\App\Models\Quote::normalizeStatus($pr->status)] ?? ucfirst(str_replace('_', ' ', $pr->status)) }}</td>
-                            <td style="padding:10px 8px;">{{ optional($pr->date_requested)->format('d M Y') ?: optional($pr->created_at)->format('d M Y') }}</td>
-                            <td style="padding:10px 8px; text-align:center;">
-                                <a href="{{ route('rfqs.show', $pr->id) }}" class="txt-none fs-12" style="color:#2f55c7; text-decoration:underline;">Review</a>
+                            <td>{{ \App\Models\Quote::statusOptions()[\App\Models\Quote::normalizeStatus($pr->status)] ?? ucfirst(str_replace('_', ' ', $pr->status)) }}</td>
+                            <td>{{ optional($pr->date_requested)->format('d M Y') ?: optional($pr->created_at)->format('d M Y') }}</td>
+                            <td style="text-align:center;">
+                                <a href="{{ route('rfqs.show', $pr->id) }}" class="dash-review-link">Review</a>
                             </td>
                         </tr>
                     @endforeach

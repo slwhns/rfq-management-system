@@ -1,91 +1,77 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-white5 pd-15 bdr-bottom-22 mg-b-20">
-    <div class="fs-15 fw-bold">Projects</div>
+
+<div class="dash-title-wrap mg-b-20">
+    <div class="d-flex fd-column ai-center jc-center gap-8 txt-center">
+        <div class="d-flex ai-center gap-10 jc-center">
+            <span class="dash-greeting-emoji">◎</span>
+            <div class="dash-greeting-text">Projects</div>
+        </div>
+        <div class="dash-greeting-sub">Manage and configure projects, items, and generate RFQs</div>
+    </div>
 </div>
 
 <div class="d-grid gap-20 mg-b-20" style="grid-template-columns: 1fr;">
-    <button type="button" class="bg-blue clr-white pd-10 br-5 cursor-pointer" style="border: 0;" onclick="openAddProjectModal()">+ Add Project</button>
+    <button type="button" class="proj-text-btn rfq-filter-btn-apply" onclick="openAddProjectModal()">+ Add Project</button>
 </div>
 
 <div class="d-grid gap-20 mg-b-20" style="grid-template-columns: 1.2fr 1fr;">
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="d-flex jc-between ai-center mg-b-10">
-            <div class="fw-bold">Select Project</div>
-            <button
-                type="button"
-                class="fs-12 clr-blue cursor-pointer"
-                style="border: 0; background: transparent; text-decoration: underline; padding: 0;"
-                onclick="openProjectManagerModal()"
-            >
-                Manage Projects
-            </button>
+    <div class="dash-table-card">
+        <div class="dash-table-header">
+            <div class="dash-table-title">Select Project</div>
+            <button type="button" class="proj-text-btn" onclick="openProjectManagerModal()">Manage Projects</button>
         </div>
-
-        <select id="project-select" class="pd-10 bdr-all-22 br-5 mg-b-10" style="width: 100%;">
+        <select id="project-select" class="rfq-filter-input w-100 mg-b-10">
             <option value="">Loading projects...</option>
         </select>
-
-        <div id="pricing-selected-project-name" class="fs-12 clr-grey1">No project selected</div>
+        <div id="pricing-selected-project-name" class="fs-12 clr-plt2">No project selected</div>
     </div>
 
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="fw-bold mg-b-10">Pricing Summary</div>
-
-        <div class="mg-b-10">Subtotal: <span id="subtotal">RM0</span></div>
-        <div class="mg-b-10">Tax: <span id="tax">RM0</span></div>
-        <div class="mg-b-10">Total: <span id="total">RM0</span></div>
-
-        <div class="d-flex mg-t-20">
-            <button type="button" class="bg-blue clr-white pd-10 br-5 mg-r-10 cursor-pointer" style="border: 0;" onclick="calculatePrice()">
-                Calculate
-            </button>
-            <button type="button" class="bg-green clr-white pd-10 br-5 cursor-pointer" style="border: 0;" onclick="generateQuote()">
-                Generate RFQ
-            </button>
+    <div class="dash-table-card">
+        <div class="dash-table-header">
+            <div class="dash-table-title">Pricing Summary</div>
+        </div>
+        <div class="proj-summary-row">
+            <span class="proj-summary-label">Subtotal</span>
+            <span id="subtotal" class="proj-summary-value">RM0</span>
+        </div>
+        <div class="proj-summary-row">
+            <span class="proj-summary-label">Tax</span>
+            <span id="tax" class="proj-summary-value">RM0</span>
+        </div>
+        <div class="proj-summary-row proj-summary-total">
+            <span class="proj-summary-label">Total</span>
+            <span id="total" class="proj-summary-value">RM0</span>
+        </div>
+        <div class="d-flex gap-10 mg-t-16">
+            <button type="button" class="rfq-filter-btn-apply" onclick="calculatePrice()">Calculate</button>
+            <button type="button" class="proj-btn-generate" onclick="generateQuote()">Generate RFQ</button>
         </div>
     </div>
 </div>
 
 <div class="d-grid gap-20 mg-b-20" style="grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr); align-items: start;">
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic">
-        <div class="d-flex ai-center jc-between pd-10 fw-bold">
-            <div>Item Details</div>
+    <div class="dash-table-card">
+        <div class="dash-table-header">
+            <div class="dash-table-title">Item Details</div>
         </div>
-
-        <div class="d-grid gap-10 pd-10 mg-b-10" style="grid-template-columns: minmax(0, 1fr) 220px 110px; align-items: center;">
-            <input
-                id="component-search"
-                class="pd-10 bdr-all-22 br-5"
-                type="text"
-                placeholder="Search by name, SKU, description, supplier"
-            >
-
-            <select id="component-filter" class="pd-10 bdr-all-22 br-5">
+        <div class="d-grid gap-10 mg-b-12" style="grid-template-columns: minmax(0, 1fr) 220px 110px; align-items: center;">
+            <input id="component-search" class="rfq-filter-input" type="text" placeholder="Search by name, SKU, description, supplier">
+            <select id="component-filter" class="rfq-filter-input">
                 <option value="">Loading categories...</option>
             </select>
-
-            <button
-                id="component-clear"
-                type="button"
-                class="bg-white5 clr-black1 pd-10 br-5 cursor-pointer"
-                style="border: 1px solid #d9d9d9;"
-            >
-                Clear
-            </button>
+            <button id="component-clear" type="button" class="rfq-filter-btn-reset">Clear</button>
         </div>
-
-        <div id="components" class="pd-10" data-mode="pricing"></div>
-        <div id="components-pagination" class="d-flex jc-between ai-center pd-10 fs-12 clr-grey1"></div>
+        <div id="components" data-mode="pricing"></div>
+        <div id="components-pagination" class="d-flex jc-between ai-center pd-10 fs-12 clr-plt2"></div>
     </div>
 
-    <div class="bg-white5 pd-20 br-10 box-shadow-basic h-mc">
-        <div class="d-flex jc-between ai-center mg-b-10">
-            <div class="fw-bold">Selected Items</div>
-            <div class="fs-12 clr-grey1">By selected project</div>
+    <div class="dash-table-card h-mc">
+        <div class="dash-table-header">
+            <div class="dash-table-title">Selected Items</div>
+            <div class="fs-12 clr-plt2">By selected project</div>
         </div>
-
         <div id="pricing-selected-components" class="br-10 of-hidden"></div>
     </div>
 </div>

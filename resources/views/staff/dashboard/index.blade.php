@@ -7,68 +7,100 @@
     $recentActivities = collect($recentActivities ?? []);
 @endphp
 
-<div class="bg-white5 pd-15 bdr-bottom-22 mg-b-20">
-    <div class="fs-15 fw-bold">Client Dashboard</div>
+{{-- ═══════════════════════════════════════════
+     PART 1 — PAGE TITLE
+═══════════════════════════════════════════ --}}
+<div class="dash-title-wrap mg-b-20">
+    <div class="d-flex fd-column ai-center jc-center gap-8 txt-center">
+        <div class="d-flex ai-center gap-10 jc-center">
+            <span class="dash-greeting-emoji">👋</span>
+            <div class="dash-greeting-text">RFQ Management System</div>
+        </div>
+        <div class="dash-greeting-sub">Welcome back, {{ auth()->user()->name ?? 'User' }}</div>
+    </div>
 </div>
 
-<div class="bg-white5 pd-20 br-10 box-shadow-basic">
-    <div class="d-flex jc-between ai-center mg-b-15" style="flex-wrap:wrap; gap:10px;">
+
+<div class="dash-table-card mg-b-20">
+    <div class="dash-table-header">
         <div>
-            <div class="fw-bold">Project Overview</div>
+            <div class="dash-table-title">Project Overview</div>
+            <div class="dash-table-subtitle">Summary of your project statuses</div>
         </div>
-        <div class="fs-12 clr-grey1">{{ $totalClientProjects ?? 0 }} total projects</div>
+        <span class="dash-badge-count">
+            {{ $totalClientProjects ?? 0 }} total projects
+        </span>
     </div>
 
     @if($quoteStateSummary->isEmpty())
-        <div class="fs-12 clr-grey1">No projects yet.</div>
+        <div class="dash-empty-state">
+            <i class="ri-folder-open-line"></i>
+            <div>No projects yet.</div>
+        </div>
     @else
         <div class="d-grid gap-15" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
             @foreach($quoteStateSummary as $statusItem)
-                <div class="pd-15 br-10" style="background:#f9fbff; border:1px solid #dbe6ff;">
-                    <div class="fs-12 clr-grey1 mg-b-5">{{ $statusItem['label'] }}</div>
-                    <div class="fs-28 fw-bold" style="color:#1f3f8f;">{{ $statusItem['count'] }}</div>
+                @php
+                    $statColor = 'dash-stat-blue';
+                    $labelLower = strtolower($statusItem['label']);
+                    if ($labelLower === 'approved') {
+                        $statColor = 'dash-stat-green';
+                    } elseif (in_array($labelLower, ['declined', 'rejected'])) {
+                        $statColor = 'dash-stat-red';
+                    } elseif ($labelLower === 'draft') {
+                        $statColor = 'dash-stat-yellow';
+                    }
+                @endphp
+                <div class="dash-stat-card {{ $statColor }}" style="padding: 15px;">
+                    <div class="dash-stat-body">
+                        <div class="dash-stat-label">{{ $statusItem['label'] }}</div>
+                        <div class="dash-stat-value">{{ $statusItem['count'] }}</div>
+                    </div>
                 </div>
             @endforeach
         </div>
     @endif
 </div>
 
-<div class="bg-white5 pd-20 br-10 box-shadow-basic mg-t-20">
-    <div class="d-flex jc-between ai-center mg-b-15" style="flex-wrap:wrap; gap:10px;">
+<div class="dash-table-card">
+    <div class="dash-table-header">
         <div>
-            <div class="fw-bold">Recent Activity</div>
-            <div class="fs-12 clr-grey1 mg-t-5">Track the latest admin updates, project movement, and re-issue responses.</div>
+            <div class="dash-table-title">Recent Activity</div>
+            <div class="dash-table-subtitle">Track the latest admin updates, project movement, and re-issue responses.</div>
         </div>
     </div>
 
     @if($recentActivities->isEmpty())
-        <div class="fs-12 clr-grey1">No activity yet.</div>
+        <div class="dash-empty-state">
+            <i class="ri-history-line"></i>
+            <div>No activity yet.</div>
+        </div>
     @else
-        <div style="display:flex; flex-direction:column; gap:12px; max-height:460px; overflow-y:auto; padding-right:4px;">
+        <div style="display:flex; flex-direction:column; gap:12px; max-height:460px; overflow-y:auto; padding-right:4px;" class="sbar-w-none">
             @foreach($recentActivities as $activity)
-                <div class="pd-15 br-10" style="border:1px solid #eceff7; background:#ffffff;">
+                <div class="dash-activity-card">
                     <div class="d-flex jc-between ai-start" style="gap:12px; flex-wrap:wrap;">
                         <div>
                             <div class="d-flex ai-center" style="gap:8px; flex-wrap:wrap;">
-                                <div class="fw-bold">{{ $activity['title'] }}</div>
+                                <div class="dash-activity-title">{{ $activity['title'] }}</div>
                                 @if(!empty($activity['is_admin_activity']))
-                                    <span class="fs-11 fw-bold pd-6 br-5" style="background:#edf5ff; color:#2f55c7; border:1px solid #d6e6ff;">Admin Update</span>
+                                    <span class="dash-priority-badge dash-priority-blue">Admin Update</span>
                                 @endif
                             </div>
-                            <div class="fs-12 clr-grey1 mg-t-4">{{ $activity['description'] }}</div>
+                            <div class="dash-activity-desc fs-12 mg-t-4">{{ $activity['description'] }}</div>
                             @if(!empty($activity['project_name'] ?? ''))
-                                <div class="fs-11 clr-grey1 mg-t-4">Project: {{ $activity['project_name'] }}</div>
+                                <div class="dash-activity-desc fs-11 mg-t-4">Project: {{ $activity['project_name'] }}</div>
                             @endif
                             @if(!empty($activity['details'] ?? ''))
-                                <div class="fs-11 mg-t-4" style="color:#30415f; white-space:pre-wrap;">{{ $activity['details'] }}</div>
+                                <div class="fs-11 mg-t-4 clr-plt2" style="white-space:pre-wrap;">{{ $activity['details'] }}</div>
                             @endif
                         </div>
-                        <div class="fs-11 clr-grey1">{{ optional($activity['timestamp'])->format('d M Y, h:i A') }}</div>
+                        <div class="fs-11 clr-plt3">{{ optional($activity['timestamp'])->format('d M Y, h:i A') }}</div>
                     </div>
 
                     @if(($activity['type'] ?? '') === 'rfq' && !empty($activity['quote_id']))
                         <div class="mg-t-8">
-                            <a href="{{ route('rfqs.show', $activity['quote_id']) }}" class="txt-none fs-12" style="color:#2f55c7; text-decoration:underline;">Open RFQ</a>
+                            <a href="{{ route('rfqs.show', $activity['quote_id']) }}" class="dash-review-link">Open RFQ</a>
                         </div>
                     @endif
                 </div>

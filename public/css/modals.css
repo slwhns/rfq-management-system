@@ -164,3 +164,117 @@
 .gap-15 {
     gap: 15px;
 }
+
+body:not(.light-theme) .modal-overlay {
+    background: rgba(0, 0, 0, 0.64);
+}
+
+body:not(.light-theme) .modal-dialog {
+    background: var(--plt5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    color: var(--white3);
+}
+
+body:not(.light-theme) .modal-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+body:not(.light-theme) .modal-header h3 {
+    color: var(--white3);
+}
+
+body:not(.light-theme) .modal-close {
+    color: var(--plt2);
+}
+
+body:not(.light-theme) .modal-close:hover {
+    color: var(--white3);
+}
+
+body:not(.light-theme) .modal-body {
+    color: var(--white2);
+}
+
+body:not(.light-theme) .modal-footer {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+body:not(.light-theme) .modal-body label,
+body:not(.light-theme) .modal-field-label {
+    color: var(--white1);
+}
+
+body:not(.light-theme) .modal-field-help,
+body:not(.light-theme) .modal-field-optional {
+    color: var(--plt2);
+}
+
+body:not(.light-theme) .modal-body input,
+body:not(.light-theme) .modal-body select,
+body:not(.light-theme) .modal-body textarea,
+body:not(.light-theme) .modal-field-input {
+    background: var(--plt5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: var(--white3) !important;
+}
+
+body:not(.light-theme) .modal-body input:focus,
+body:not(.light-theme) .modal-body select:focus,
+body:not(.light-theme) .modal-body textarea:focus,
+body:not(.light-theme) .modal-field-input:focus {
+    border-color: var(--plt1) !important;
+    box-shadow: 0 0 0 2px var(--orange-lite) !important;
+    outline: none;
+}
+
+body:not(.light-theme) .modal-body select option {
+    background: var(--plt5);
+    color: var(--white3);
+}
+
+body:not(.light-theme) .modal-body input::placeholder,
+body:not(.light-theme) .modal-body textarea::placeholder {
+    color: var(--plt2);
+}
+
+body:not(.light-theme) .btn-primary {
+    background: var(--plt1);
+    border-color: var(--plt1);
+    color: #ffffff;
+}
+
+body:not(.light-theme) .btn-primary:hover {
+    background: var(--orange-dark);
+    border-color: var(--orange-dark);
+}
+
+body:not(.light-theme) .btn-secondary {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--white2);
+}
+
+body:not(.light-theme) .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--white3);
+}
+
+body:not(.light-theme) .btn-danger {
+    background: rgba(191, 47, 47, 0.18);
+    border: 1px solid rgba(248, 113, 113, 0.42);
+    color: #f87171;
+}
+
+body:not(.light-theme) .btn-danger:hover {
+    background: rgba(191, 47, 47, 0.28);
+    color: #fecaca;
+}
+
+body:not(.light-theme) .btn-icon {
+    color: var(--plt2);
+}
+
+body:not(.light-theme) .btn-icon:hover {
+    color: var(--white3);
+}

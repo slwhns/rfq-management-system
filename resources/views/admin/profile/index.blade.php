@@ -9,9 +9,13 @@
     $employeeId = 'QS-' . str_pad((string) ($user?->id ?? 0), 4, '0', STR_PAD_LEFT);
 @endphp
 
-<div class="bg-white5 pd-15 bdr-bottom-22 mg-b-20">
-    <div class="d-flex jc-between ai-center">
-        <div class="fs-15 fw-bold">Profile</div>
+<div class="dash-title-wrap mg-b-20">
+    <div class="d-flex fd-column ai-center jc-center gap-8 txt-center">
+        <div class="d-flex ai-center gap-10 jc-center">
+            <span class="dash-greeting-emoji"><i class="ri-user-3-line"></i></span>
+            <div class="dash-greeting-text">Profile Settings</div>
+        </div>
+        <div class="dash-greeting-sub">Review your account information and update your profile details</div>
     </div>
 </div>
 
@@ -103,7 +107,7 @@
                     <div class="fs-11 clr-grey1 mg-t-5">Allowed: JPG, PNG, WEBP. Max 2MB.</div>
                 </div>
 
-                <div class="pd-10 br-5" style="border:1px solid #e7eaf3; background:#f8faff; overflow:hidden;">
+                <div class="profile-password-panel pd-10 br-5">
                     <div class="fs-12 fw-bold mg-b-10">Change Password (Optional)</div>
 
                     <div class="mg-b-10">
@@ -139,5 +143,4 @@
 </div>
 
 @endsection
-
 

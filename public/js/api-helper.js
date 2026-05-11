@@ -171,6 +171,8 @@ function show_popup_temp(type, title, messages = []) {
     overlay.style.background = 'rgba(0, 0, 0, 0.35)';
     overlay.style.zIndex = '9998';
 
+    const isLight = document.body.classList.contains('light-theme');
+
     const popup = document.createElement('div');
     popup.id = popupId;
     popup.style.position = 'fixed';
@@ -178,7 +180,8 @@ function show_popup_temp(type, title, messages = []) {
     popup.style.left = '50%';
     popup.style.transform = 'translate(-50%, -50%)';
     popup.style.width = 'min(92vw, 440px)';
-    popup.style.background = '#ffffff';
+    popup.style.background = isLight ? '#ffffff' : '#23272e';
+    popup.style.border = isLight ? 'none' : '1px solid #393e46';
     popup.style.borderRadius = '10px';
     popup.style.boxShadow = '0 16px 50px rgba(0, 0, 0, 0.28)';
     popup.style.overflow = 'hidden';
@@ -201,7 +204,7 @@ function show_popup_temp(type, title, messages = []) {
 
     const body = document.createElement('div');
     body.style.padding = '14px 16px 16px';
-    body.style.color = '#2a2a2a';
+    body.style.color = isLight ? '#2a2a2a' : '#e0e0e0';
     body.style.fontSize = '13px';
 
     const contentLines = Array.isArray(messages) ? messages : [String(messages || '')];

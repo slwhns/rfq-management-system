@@ -1155,7 +1155,7 @@ function renderSupplierItems(supplierId) {
         section.className = 'mg-b-15';
 
         const title = document.createElement('div');
-        title.className = 'pd-10 fw-bold bdr-all-22 br-5 bg-white3 mg-b-5';
+        title.className = 'pd-10 fw-bold bdr-all-22 br-5 bg-grey-dark mg-b-5 clr-orange category-title';
         title.textContent = `${group.categoryName} (${group.items.length})`;
         section.appendChild(title);
 

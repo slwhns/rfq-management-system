@@ -4,22 +4,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RFQ Management System Login</title>
+    <link rel="icon" href="{{ asset('images/system-logo.svg') }}" type="image/svg+xml">
+    <!-- Google Fonts: Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('css/auth-login.css') }}">
 </head>
 <body>
     <main class="auth-shell">
-        <section class="auth-left">
-            <div class="auth-card">
-                <div class="auth-brand-wrap">
-                    <div class="auth-brand-logo">
-                        <img src="{{ asset('images/system-logo.svg') }}" alt="RFQ Management System Logo">
-                    </div>
-                    <p class="auth-brand-title">RFQ Management System</p>
-                    <p class="auth-brand-subtitle">Pricing System</p>
-                </div>
+        <div class="auth-bg-shape auth-bg-orange"></div>
+        <div class="auth-bg-shape auth-bg-navy"></div>
+        <div class="auth-bg-shape auth-bg-gold"></div>
+        <div class="auth-bg-shape auth-bg-green"></div>
+        <div class="auth-bg-shape auth-bg-red"></div>
 
-                <h1 class="auth-title">Sign In</h1>
+        <section class="auth-panel" aria-label="Login">
+            <div class="auth-card">
+                <h1 class="auth-title">Welcome to RFQ Management System!</h1>
+                <p class="auth-subtitle">Please sign in to your account</p>
 
                 @if($errors->any())
                     <div class="auth-error">{{ $errors->first() }}</div>
@@ -53,16 +55,11 @@
                         Remember me
                     </label>
 
-                    <button type="submit" class="auth-submit">Sign In</button>
+                    <button type="submit" class="auth-submit">Log In</button>
                 </form>
             </div>
-        </section>
-
-        <section class="auth-right" aria-hidden="true">
-            <div class="auth-right-caption">RFQ Management System</div>
         </section>
     </main>
 </body>
 <script src="{{ asset('js/auth-login.js') }}"></script>
 </html>
-

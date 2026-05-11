@@ -158,3 +158,60 @@
     background: #e3ebff;
     border-color: #afc3ff;
 }
+
+body:not(.light-theme) .reject-modal-backdrop {
+    background: rgba(0, 0, 0, 0.64);
+}
+
+body:not(.light-theme) .reject-modal-card {
+    background: var(--plt5);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.64);
+}
+
+body:not(.light-theme) .reject-modal-head {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+body:not(.light-theme) .reject-modal-title {
+    color: var(--white3);
+}
+
+body:not(.light-theme) .reject-modal-subtitle,
+body:not(.light-theme) .reject-modal-label {
+    color: var(--white1);
+}
+
+body:not(.light-theme) .reject-modal-textarea {
+    background: var(--plt5);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--white3);
+}
+
+body:not(.light-theme) .reject-modal-textarea:focus {
+    border-color: var(--plt1);
+    box-shadow: 0 0 0 3px var(--orange-lite);
+}
+
+body:not(.light-theme) .reject-btn-cancel {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--white2);
+}
+
+body:not(.light-theme) .reject-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--white3);
+}
+
+body:not(.light-theme) .reject-btn-submit {
+    background: rgba(191, 47, 47, 0.12);
+    border-color: rgba(248, 113, 113, 0.42);
+    color: #f87171;
+}
+
+body:not(.light-theme) .reject-btn-submit.reissue-btn-submit {
+    background: rgba(31, 143, 73, 0.14);
+    border-color: rgba(34, 197, 94, 0.42);
+    color: #22c55e;
+}

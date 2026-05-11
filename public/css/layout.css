@@ -5,10 +5,11 @@
     align-items: center;
     gap: 10px;
     cursor: pointer;
-    color: #1f2a3c;
+    color: #d0d0d0;
     padding: 4px;
     font-family: inherit;
 }
+
 
 .header-user {
     font-family: inherit;
@@ -49,14 +50,14 @@
     right: 0;
     width: 64px;
     height: 100vh;
-    background: #ffff;
-    border-left: 1px solid #d9deea;
+    background: var(--plt5);
+    border-left: 1px solid #ffffff0f;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     padding: 14px 8px;
-    box-shadow: -12px 0 24px rgba(13, 24, 46, 0.12);
+    box-shadow: -12px 0 32px rgba(0,0,0,0.4);
     transform: translateX(110%);
     transition: transform 0.2s ease;
     z-index: 150;
@@ -93,24 +94,26 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    border: 0px solid #d7dce8;
-    background: #fff;
-    color: #30405f;
+    border: 0;
+    background: transparent;
+    color: var(--plt2);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
     text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
 }
 
 .profile-rail-btn:hover {
-    background: #f0f3fb;
+    background: rgba(255,255,255,0.08);
+    color: var(--white3);
 }
 
 .profile-rail-name {
     font-size: 11px;
-    color: #30405f;
+    color: var(--white2);
     line-height: 1.2;
     word-break: break-word;
 }
@@ -119,11 +122,11 @@
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.3px;
-    color: #6f7f9f;
+    color: var(--plt3);
 }
 
 .profile-rail-logout {
-    color: #ca2b2b;
+    color: #f87171;
 }
 
 body.profile-rail-open .profile-rail {
@@ -133,3 +136,23 @@ body.profile-rail-open .profile-rail {
 body.profile-rail-open .profile-rail-overlay {
     display: block;
 }
+
+/* Profile Rail — Light Theme */
+body.light-theme .profile-rail {
+    background: #ffffff;
+    border-left-color: #d9deea;
+    box-shadow: -12px 0 24px rgba(13,24,46,0.12);
+}
+
+body.light-theme .profile-rail-btn {
+    color: #30405f;
+}
+
+body.light-theme .profile-rail-btn:hover {
+    background: #f0f3fb;
+    color: #1a2233;
+}
+
+body.light-theme .profile-rail-name { color: #30405f; }
+body.light-theme .profile-rail-role  { color: #6f7f9f; }
+body.light-theme .profile-rail-logout { color: #ca2b2b; }

@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>@yield('title', 'QS System')</title>
+    <title>@yield('title', 'RFQ Management System')</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('images/system-logo.svg') }}" type="image/svg+xml">
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Custom CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+
+    <link rel="stylesheet" href="{{ asset('css/custom-overrides.css') }}">
     <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
     <link rel="stylesheet" href="{{ asset('css/modals.css') }}">
     <link rel="stylesheet" href="{{ asset('css/profile-page.css') }}">
@@ -31,7 +36,7 @@
 
         <div class="app-brand-wrap mg-b-10">
             <div class="app-brand">
-                <img src="{{ asset('images/system-logo.svg') }}" alt="QS System Logo" class="app-brand-logo">
+                <img src="{{ asset('images/system-logo.svg') }}" alt="RFQ Management System Logo" class="app-brand-logo">
             </div>
         </div>
 
@@ -62,8 +67,6 @@
                 <span class="app-nav-text-full">RFQ</span>
             </span>
         </button>
-
-
 
         @if(($currentUser?->normalizedRole() ?? 'client') === 'superadmin')
             <button type="button" data-route="admin/staff" class="nav-btn pd-10 br-5 mg-b-10 cursor-pointer {{ request()->is('admin/staff*') ? 'app-nav-active' : '' }}"
@@ -107,8 +110,8 @@
         <div class="header d-flex jc-between ai-center pd-15 bg-white5 bdr-bottom-22 box-shadow-basic app-header">
 
             <div>
-                <div class="fs-18 fw-bold header-title">QS Smart Data Center</div>
-                <div class="fs-12 header-subtitle">Pricing System</div>
+                <div class="fs-18 fw-bold header-title">RFQ Management System</div>
+                <div class="fs-12 header-subtitle">Request For Quotation</div>
             </div>
 
             <button type="button" class="header-profile-trigger" id="header-profile-trigger" aria-label="Open profile panel">
@@ -122,6 +125,13 @@
                 </span>
             </button>
 
+        </div>
+
+        <!-- Animated background orbs -->
+        <div class="bg-orbs" aria-hidden="true">
+            <div class="bg-orb bg-orb-1"></div>
+            <div class="bg-orb bg-orb-2"></div>
+            <div class="bg-orb bg-orb-3"></div>
         </div>
 
         <!-- MAIN CONTENT -->
@@ -150,6 +160,10 @@
                 <i class="ri-user-3-line"></i>
             </a>
 
+            <button type="button" id="theme-toggle-btn" class="profile-rail-btn" aria-label="Toggle theme" title="Switch to Light Theme">
+                <i class="ri-sun-line" id="theme-icon"></i>
+            </button>
+
             <form method="POST" action="{{ route('logout') }}" data-no-spa="true">
                 @csrf
                 <button type="submit" class="profile-rail-btn profile-rail-logout" title="Logout" aria-label="Logout" data-no-spa="true">
@@ -166,6 +180,45 @@
 <script type="module" src="{{ asset('js/app.js') }}"></script>
 
 @stack('scripts')
+
+<script>
+(function () {
+    const STORAGE_KEY = 'qs_theme';
+    const body = document.body;
+    const btn = document.getElementById('theme-toggle-btn');
+    const icon = document.getElementById('theme-icon');
+
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            body.classList.add('light-theme');
+            if (icon) {
+                icon.className = 'ri-moon-line';
+                btn.title = 'Switch to Dark Theme';
+            }
+        } else {
+            body.classList.remove('light-theme');
+            if (icon) {
+                icon.className = 'ri-sun-line';
+                btn.title = 'Switch to Light Theme';
+            }
+        }
+    }
+
+    // Apply saved theme on load
+    const saved = localStorage.getItem(STORAGE_KEY) || 'dark';
+    applyTheme(saved);
+
+    // Toggle on click
+    if (btn) {
+        btn.addEventListener('click', function () {
+            const isLight = body.classList.contains('light-theme');
+            const next = isLight ? 'dark' : 'light';
+            localStorage.setItem(STORAGE_KEY, next);
+            applyTheme(next);
+        });
+    }
+})();
+</script>
 
 </body>
 </html>

@@ -67,6 +67,16 @@
     margin: 0 auto;
     border: 1px solid #dedede;
     background: #ffffff;
+    color: #20242a;
+}
+
+.quote-template-card .clr-grey1 {
+    color: #5f6673;
+}
+
+.quote-template-card .quote-title,
+.quote-template-card .fw-bold {
+    color: #20242a;
 }
 
 .quote-header-right {
@@ -126,6 +136,7 @@
 .quote-items-table td {
     border: 1px solid #222;
     padding: 10px;
+    color: #20242a;
 }
 
 .quote-items-table thead th {
@@ -198,6 +209,7 @@
     border: 1px solid #222;
     padding: 8px 10px;
     text-align: right;
+    color: #20242a;
 }
 
 .quote-summary-total td {
